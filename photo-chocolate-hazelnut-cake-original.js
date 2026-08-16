@@ -1,1 +1,0 @@
-window.MSB_PHOTO_chocolate_hazelnut_cake='data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2w==';
