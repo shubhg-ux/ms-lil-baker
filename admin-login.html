@@ -1,1 +1,71 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ms. Lil Baker — Admin Login</title><link rel="stylesheet" href="style.css"></head><body><main class="admin"><p class="eyebrow">Ms. Lil Baker</p><h1>Admin Login</h1><p class="small">Temporary test admin account</p><form id="loginForm"><label>Email<input type="email" name="email" required value="testharry.17@gmail.com"></label><label>Password<input type="password" name="password" required autocomplete="current-password"></label><button class="button" type="submit">Sign in</button><p id="loginStatus" class="small"></p></form></main><script src="config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="admin-auth.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ms. Lil Baker — Admin Login</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="admin-products.css">
+</head>
+<body>
+
+<div class="admin-shell admin-narrow">
+  <div class="login-card">
+    <h1>Admin Sign In</h1>
+    <p class="sub">Enter your credentials to manage products.</p>
+
+    <div class="field">
+      <label for="loginEmail">Email</label>
+      <input type="email" id="loginEmail" placeholder="you@mslilbaker.com" autocomplete="username">
+    </div>
+
+    <div class="field">
+      <label for="loginPassword">Password</label>
+      <input type="password" id="loginPassword" autocomplete="current-password">
+    </div>
+
+    <button id="loginBtn" class="icon-btn" style="width: 100%; padding: 10px; margin-top: 8px;">Log In</button>
+    <div id="loginMsg" class="form-msg error"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+  const config = window.MSB_CONFIG || {};
+  const supabaseClient = window.supabase ? window.supabase.createClient(config.url, config.anonKey) : null;
+
+  // Check if already logged in
+  async function checkSession() {
+    if (!supabaseClient) return;
+    const { data } = await supabaseClient.auth.getSession();
+    if (data?.session) {
+      window.location.href = "admin-products.html";
+    }
+  }
+
+  document.getElementById("loginBtn").addEventListener("click", async () => {
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
+    const msg = document.getElementById("loginMsg");
+    msg.textContent = "";
+
+    if (!email || !password) {
+      msg.textContent = "Please enter both email and password.";
+      return;
+    }
+
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) {
+      msg.textContent = error.message || "That email or password isn't right.";
+      return;
+    }
+    
+    // Redirect to product catalog on successful login
+    window.location.href = "admin-products.html";
+  });
+
+  checkSession();
+</script>
+</body>
+</html>
