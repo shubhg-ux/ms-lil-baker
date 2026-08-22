@@ -1,1 +1,93 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ms. Lil Baker — Products</title><link rel="stylesheet" href="admin-products.css"></head><body><header><a href="admin.html">← Orders</a><strong>Ms. Lil Baker · Admin</strong><span>Products</span><button id="logout" type="button">Log out</button></header><main><div class="top"><div><p class="eyebrow">Menu manager</p><h1>Products</h1><p>Add, edit, hide or remove products without touching code.</p></div><button id="newBtn">+ Add product</button></div><div id="notice"></div><section class="panel"><div id="productList">Checking login…</div></section></main><div class="modal" id="modal"><div class="card"><button id="close">×</button><p class="eyebrow">Menu item</p><h2 id="formTitle">Add product</h2><form id="productForm"><input type="hidden" id="id"><label>Product name<input id="name" required></label><label>Category<select id="category" required></select></label><label>Price (₹)<input id="price" type="number" min="0" step="1" required></label><label>Description<textarea id="description"></textarea></label><label>Photo<input id="photo" type="file" accept="image/jpeg,image/png,image/webp"><small>Upload a photo directly. It is stored with the product, so it survives website rebuilds.</small></label><div id="photoPreview" class="photo-preview"></div><label>Or use an existing image URL<input id="image_url" type="url" placeholder="https://..."></label><label class="check"><input id="available" type="checkbox" checked> Available for ordering</label><label>Display order<input id="sort_order" type="number" min="0" value="0"></label><button class="save" type="submit">Save product</button></form></div></div><script src="config.js"></script><script src="photo-chocolate-hazelnut-cake.js"></script><script src="photo-berry-cheesecake.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="admin-products.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Products — Ms. Lil Baker</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a href="index.html" class="brand">
+      <span class="brand-seal">MLB</span>
+      <span>
+        <span class="brand-name">Ms. Lil Baker</span>
+        <span class="brand-sub">Admin</span>
+      </span>
+    </a>
+  </div>
+</header>
+
+<!-- LOGIN VIEW -->
+<div class="wrap admin-shell" id="loginView">
+  <div class="admin-narrow login-card">
+    <h1>Log in</h1>
+    <p class="sub">This page is just for Rubani.</p>
+    <div class="field">
+      <label for="loginEmail">Email</label>
+      <input type="email" id="loginEmail" autocomplete="username">
+    </div>
+    <div class="field">
+      <label for="loginPassword">Password</label>
+      <input type="password" id="loginPassword" autocomplete="current-password">
+    </div>
+    <button class="btn btn-primary" id="loginBtn" style="width:100%; justify-content:center;">Log in</button>
+    <div class="form-msg error" id="loginMsg"></div>
+  </div>
+</div>
+
+<!-- ADMIN VIEW (hidden until logged in) -->
+<div class="wrap admin-shell hidden" id="adminView">
+  <div class="admin-bar">
+    <h1>Manage products</h1>
+    <button class="btn btn-ghost btn-small" id="logoutBtn">Log out</button>
+  </div>
+
+  <div class="admin-grid">
+    <div class="panel">
+      <h2 id="formTitle">Add a product</h2>
+      <div class="upload-preview" id="uploadPreview">No photo selected</div>
+      <div class="field">
+        <label for="photoInput">Photo</label>
+        <input type="file" id="photoInput" accept="image/*">
+      </div>
+      <div class="field">
+        <label for="nameInput">Name</label>
+        <input type="text" id="nameInput" placeholder="e.g. Belgian Chocolate Truffle Cake">
+      </div>
+      <div class="field">
+        <label for="categoryInput">Category</label>
+        <select id="categoryInput">
+          <option>Cakes</option>
+          <option>Brownies</option>
+          <option>Cheesecakes</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="priceInput">Price (₹)</label>
+        <input type="number" id="priceInput" min="0" placeholder="e.g. 1200">
+      </div>
+      <div class="field">
+        <label for="descInput">Short description (optional)</label>
+        <textarea id="descInput" placeholder="e.g. Rich dark chocolate, salted caramel core"></textarea>
+      </div>
+      <button class="btn btn-primary" id="saveBtn" style="width:100%; justify-content:center;">Save product</button>
+      <button class="btn btn-ghost btn-small hidden" id="cancelEditBtn" style="width:100%; justify-content:center; margin-top:8px;">Cancel edit</button>
+      <div class="form-msg" id="saveMsg"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Current menu</h2>
+      <div id="productList"><p style="color:var(--ink-soft); font-size:13px;">Loading…</p></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="admin-products.js"></script>
+</body>
+</html>
