@@ -1,314 +1,242 @@
-/* Ms. Lil Baker — Professional Admin SaaS System */
+/* Ms. Lil Baker — Admin & Product Manager */
 
-:root {
-  --admin-bg: #f8f6f4;
-  --admin-surface: #ffffff;
-  --admin-border: #e8ded8;
-  --admin-ink: #2b1f1c;
-  --admin-muted: #7a6b66;
-  
-  --primary: #b8294f;
-  --primary-hover: #9c2041;
-  --primary-light: #fdf2f4;
-  
-  --success: #28a745;
-  --success-bg: #e8f5e9;
-  --warning: #f59e0b;
-  --warning-bg: #fef3c7;
-  --danger: #dc3545;
-  --danger-bg: #fde8e8;
-
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
-  --shadow-md: 0 4px 12px rgba(43, 31, 28, 0.08);
-  --shadow-lg: 0 10px 25px rgba(43, 31, 28, 0.12);
-  
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
+.admin-shell {
+  padding: 40px 20px 88px;
+  max-width: 1100px;
+  margin: 0 auto;
 }
 
-body {
-  background-color: var(--admin-bg);
-  color: var(--admin-ink);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  margin: 0;
+.admin-narrow {
+  max-width: 420px;
+  margin: 40px auto 0;
 }
 
-/* Dashboard App Layout */
-.app-layout {
-  display: flex;
-  min-height: 100vh;
+/* Auth / Login Card */
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 36px 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
-/* Sidebar Navigation */
-.app-sidebar {
-  width: 260px;
-  background: var(--admin-surface);
-  border-right: 1px solid var(--admin-border);
-  padding: 24px 16px;
-  display: flex;
-  flex-direction: column;
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 100;
+.login-card h1 {
+  font-family: var(--font-display);
+  font-size: 24px;
+  margin: 0 0 6px;
+  color: var(--ink);
 }
 
-.sidebar-brand {
+.login-card p.sub {
+  color: var(--ink-soft);
+  font-size: 13px;
+  margin: 0 0 24px;
+}
+
+/* Header Bar */
+.admin-bar {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 0 12px 24px;
-  border-bottom: 1px solid var(--admin-border);
-  text-decoration: none;
-  color: var(--admin-ink);
-}
-
-.brand-badge {
-  width: 36px;
-  height: 36px;
-  background: var(--primary);
-  color: #fff;
-  font-weight: 700;
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-}
-
-.nav-group {
-  margin-top: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  border-radius: var(--radius-sm);
-  color: var(--admin-muted);
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.15s ease;
-}
-
-.nav-item:hover, .nav-item.active {
-  background: var(--primary-light);
-  color: var(--primary);
-}
-
-/* Main Content Area */
-.app-main {
-  margin-left: 260px;
-  flex: 1;
-  padding: 32px 40px;
-  max-width: 1400px;
-}
-
-/* Header Action Toolbar */
-.page-header {
-  display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 32px;
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
 }
 
-.page-title {
-  font-size: 28px;
-  font-weight: 700;
+.admin-bar h1 {
+  font-family: var(--font-display);
+  font-size: 26px;
   margin: 0;
-  letter-spacing: -0.02em;
+  color: var(--ink);
 }
 
-/* Professional SaaS Buttons */
-.btn-ui {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px 18px;
-  font-size: 14px;
-  font-weight: 600;
-  border-radius: var(--radius-sm);
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: var(--shadow-sm);
+/* Forms & Input Design */
+.field {
+  margin-bottom: 16px;
 }
 
-.btn-ui-primary {
-  background: var(--primary);
-  color: #ffffff;
-}
-
-.btn-ui-primary:hover {
-  background: var(--primary-hover);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-}
-
-.btn-ui-secondary {
-  background: var(--admin-surface);
-  border-color: var(--admin-border);
-  color: var(--admin-ink);
-}
-
-.btn-ui-secondary:hover {
-  background: var(--admin-bg);
-  border-color: #d8c8c0;
-}
-
-.btn-ui-danger {
-  background: var(--danger-bg);
-  color: var(--danger);
-  border-color: rgba(220, 53, 69, 0.2);
-}
-
-.btn-ui-danger:hover {
-  background: var(--danger);
-  color: #fff;
-}
-
-/* Content Panels */
-.panel-card {
-  background: var(--admin-surface);
-  border: 1px solid var(--admin-border);
-  border-radius: var(--radius-lg);
-  padding: 24px;
-  box-shadow: var(--shadow-sm);
-}
-
-/* Modern Form Controls */
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-label {
+.field label {
   display: block;
   font-size: 12px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--admin-muted);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+  color: var(--ink-soft);
+  letter-spacing: 0.02em;
 }
 
-.form-control {
+.field input,
+.field select,
+.field textarea {
   width: 100%;
-  padding: 12px 14px;
-  border: 1px solid var(--admin-border);
-  border-radius: var(--radius-sm);
-  background: #ffffff;
+  padding: 10px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  font-family: var(--font-body);
   font-size: 14px;
-  color: var(--admin-ink);
+  background: var(--ivory);
+  color: var(--ink);
   box-sizing: border-box;
-  transition: all 0.15s ease;
-}
-
-.form-control:focus {
   outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(184, 41, 79, 0.12);
+  transition: border-color 0.15s ease;
 }
 
-/* Drag and Drop Upload Zone */
-.dropzone-box {
-  border: 2px dashed var(--admin-border);
-  border-radius: var(--radius-md);
-  padding: 24px;
-  text-align: center;
-  background: var(--admin-bg);
-  cursor: pointer;
-  transition: border-color 0.2s ease;
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--berry);
 }
 
-.dropzone-box:hover {
-  border-color: var(--primary);
+.field textarea {
+  resize: vertical;
+  min-height: 70px;
 }
 
-/* Grid Layout for Products */
-.catalog-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 20px;
-}
-
-.product-card-ui {
-  background: var(--admin-surface);
-  border: 1px solid var(--admin-border);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  transition: all 0.2s ease;
+/* Photo Upload Box */
+.upload-preview {
+  width: 100%;
+  aspect-ratio: 4/3;
+  border-radius: 10px;
+  background: var(--ivory);
+  border: 1.5px dashed var(--line);
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-soft);
+  font-size: 13px;
+  overflow: hidden;
+  margin-bottom: 10px;
 }
 
-.product-card-ui:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-}
-
-.product-card-thumb {
-  height: 160px;
-  background: var(--admin-bg);
-  position: relative;
-}
-
-.product-card-thumb img {
+.upload-preview img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.product-card-body {
-  padding: 16px;
-  flex: 1;
+/* Main Two-Column Layout */
+.admin-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (max-width: 800px) {
+  .admin-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.panel h2 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  margin: 0 0 18px;
+  color: var(--ink);
+}
+
+/* Product Row Items */
+.product-row {
   display: flex;
-  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
 }
 
-/* Custom UI Toggle Switch */
-.switch-ui {
-  position: relative;
-  display: inline-block;
-  width: 44px;
-  height: 24px;
+.product-row:last-child {
+  border-bottom: none;
 }
 
-.switch-ui input { display: none; }
+.product-row img,
+.product-row .ph-placeholder {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: var(--ivory);
+  flex-shrink: 0;
+  border: 1px solid var(--line);
+}
 
-.slider-ui {
-  position: absolute;
+.product-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.product-info .pname {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 2px;
+  color: var(--ink);
+}
+
+.product-info .pmeta {
+  font-size: 12px;
+  color: var(--ink-soft);
+  font-family: var(--font-tag, inherit);
+}
+
+/* Action Buttons */
+.row-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.icon-btn {
+  border: 1.5px solid var(--line);
+  background: var(--ivory);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-color: #ccc;
-  transition: .2s;
-  border-radius: 24px;
+  font-family: var(--font-body);
+  color: var(--ink);
+  transition: all 0.15s ease;
 }
 
-.slider-ui:before {
-  position: absolute;
-  content: "";
-  height: 18px;
-  width: 18px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  transition: .2s;
-  border-radius: 50%;
+.icon-btn:hover {
+  background: var(--surface);
+  border-color: var(--ink-soft);
 }
 
-input:checked + .slider-ui { background-color: var(--success); }
-input:checked + .slider-ui:before { transform: translateX(20px); }
+.icon-btn.danger {
+  border-color: var(--line);
+  color: var(--berry-dark);
+}
 
-/* Responsive View */
-@media (max-width: 900px) {
-  .app-sidebar { display: none; }
-  .app-main { margin-left: 0; padding: 20px; }
+.icon-btn.danger:hover {
+  background: #fde8e8;
+  border-color: var(--berry);
+}
+
+.unavailable {
+  opacity: 0.5;
+}
+
+/* Status Feedback Messages */
+.form-msg {
+  font-size: 13px;
+  margin-top: 8px;
+  min-height: 18px;
+}
+
+.form-msg.error {
+  color: var(--berry-dark);
+}
+
+.form-msg.ok {
+  color: var(--sage);
+}
+
+.hidden {
+  display: none !important;
 }
