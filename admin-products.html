@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Manage Products — Ms. Lil Baker</title>
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="admin.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ms. Lil Baker — Manage Bakery Products</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="admin.css">
+  <!-- FontAwesome Icons for Dashboard UI -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
@@ -15,26 +17,40 @@
       <span class="brand-seal">MLB</span>
       <span>
         <span class="brand-name">Ms. Lil Baker</span>
-        <span class="brand-sub">Admin</span>
+        <span class="brand-sub">Bakery Control Room</span>
       </span>
     </a>
+    <div id="headerActions" class="admin-header-actions hidden">
+      <a class="btn btn-secondary" href="admin.html"><i class="fa-solid fa-receipt"></i> Orders</a>
+      <a class="btn btn-secondary" href="index.html" target="_blank"><i class="fa-solid fa-store"></i> Live Store</a>
+      <button class="btn btn-primary" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Log out</button>
+    </div>
   </div>
 </header>
 
 <!-- LOGIN VIEW -->
 <div class="wrap admin-shell" id="loginView">
   <div class="admin-narrow login-card">
-    <h1>Log in</h1>
-    <p class="sub">This page is just for Rubani.</p>
-    <div class="field">
-      <label for="loginEmail">Email</label>
-      <input type="email" id="loginEmail" autocomplete="username">
+    <div class="login-header">
+      <span class="brand-seal login-seal">MLB</span>
+      <h1>Rubani's Control Room</h1>
+      <p class="sub">Log in to manage your menu items, prices, and cake photos.</p>
     </div>
+    
+    <div class="field">
+      <label for="loginEmail">Email Address</label>
+      <input type="email" id="loginEmail" placeholder="rubani@mslilbaker.com" autocomplete="username">
+    </div>
+    
     <div class="field">
       <label for="loginPassword">Password</label>
-      <input type="password" id="loginPassword" autocomplete="current-password">
+      <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
     </div>
-    <button class="btn btn-primary" id="loginBtn" style="width:100%; justify-content:center;">Log in</button>
+    
+    <button class="btn btn-primary btn-full" id="loginBtn">
+      <i class="fa-solid fa-lock"></i> Log in
+    </button>
+    
     <div class="form-msg error" id="loginMsg"></div>
   </div>
 </div>
@@ -42,46 +58,81 @@
 <!-- ADMIN VIEW (hidden until logged in) -->
 <div class="wrap admin-shell hidden" id="adminView">
   <div class="admin-bar">
-    <h1>Manage products</h1>
-    <button class="btn btn-ghost btn-small" id="logoutBtn">Log out</button>
+    <div>
+      <span class="section-eyebrow">Catalog Manager</span>
+      <h1>Manage Menu Products</h1>
+    </div>
   </div>
 
   <div class="admin-grid">
-    <div class="panel">
-      <h2 id="formTitle">Add a product</h2>
-      <div class="upload-preview" id="uploadPreview">No photo selected</div>
-      <div class="field">
-        <label for="photoInput">Photo</label>
-        <input type="file" id="photoInput" accept="image/*">
+    <!-- PRODUCT FORM PANEL -->
+    <div class="panel form-panel">
+      <h2 id="formTitle"><i class="fa-solid fa-plus"></i> Add a Baked Product</h2>
+      
+      <div class="photo-preview-wrap">
+        <div class="upload-preview" id="uploadPreview">
+          <i class="fa-regular fa-image placeholder-icon"></i>
+          <span>No photo selected</span>
+        </div>
       </div>
+
       <div class="field">
-        <label for="nameInput">Name</label>
+        <label for="photoInput">Product Photo</label>
+        <div class="file-drop-zone">
+          <input type="file" id="photoInput" accept="image/*">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="nameInput">Product Name</label>
         <input type="text" id="nameInput" placeholder="e.g. Belgian Chocolate Truffle Cake">
       </div>
-      <div class="field">
-        <label for="categoryInput">Category</label>
-        <select id="categoryInput">
-          <option>Cakes</option>
-          <option>Brownies</option>
-          <option>Cheesecakes</option>
-        </select>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="categoryInput">Category</label>
+          <select id="categoryInput">
+            <option>Cakes</option>
+            <option>Brownies</option>
+            <option>Cheesecakes</option>
+            <option>Cupcakes</option>
+            <option>Pastries</option>
+            <option>Custom Bakes</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="priceInput">Price (₹)</label>
+          <input type="number" id="priceInput" min="0" placeholder="e.g. 1200">
+        </div>
       </div>
+
       <div class="field">
-        <label for="priceInput">Price (₹)</label>
-        <input type="number" id="priceInput" min="0" placeholder="e.g. 1200">
+        <label for="descInput">Short Description (optional)</label>
+        <textarea id="descInput" rows="3" placeholder="e.g. Rich 55% dark chocolate ganache, layered sponge, salted caramel drizzle."></textarea>
       </div>
-      <div class="field">
-        <label for="descInput">Short description (optional)</label>
-        <textarea id="descInput" placeholder="e.g. Rich dark chocolate, salted caramel core"></textarea>
-      </div>
-      <button class="btn btn-primary" id="saveBtn" style="width:100%; justify-content:center;">Save product</button>
-      <button class="btn btn-ghost btn-small hidden" id="cancelEditBtn" style="width:100%; justify-content:center; margin-top:8px;">Cancel edit</button>
+
+      <button class="btn btn-primary btn-full" id="saveBtn">
+        <i class="fa-solid fa-check"></i> Save Product
+      </button>
+      
+      <button class="btn btn-ghost btn-full hidden" id="cancelEditBtn">
+        Cancel Edit
+      </button>
+
       <div class="form-msg" id="saveMsg"></div>
     </div>
 
-    <div class="panel">
-      <h2>Current menu</h2>
-      <div id="productList"><p style="color:var(--ink-soft); font-size:13px;">Loading…</p></div>
+    <!-- PRODUCT CATALOG LIST -->
+    <div class="panel catalog-panel">
+      <div class="catalog-header">
+        <h2>Active Menu (<span id="productCount">0</span>)</h2>
+        <input type="text" id="searchProducts" class="input-sm" placeholder="Search menu items…">
+      </div>
+      
+      <div id="productList" class="product-admin-grid">
+        <p class="loading-state">Loading product catalog…</p>
+      </div>
     </div>
   </div>
 </div>
