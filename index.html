@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ms. Lil Baker — Home Bakery, Delhi</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ms. Lil Baker — Home Bakery, Delhi</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
@@ -54,30 +55,41 @@
   </div>
 </section>
 
-<section id="about">
+<section id="about" class="about-section">
   <div class="wrap">
-    <div class="placeholder-block">
-      <strong>Reserved — About Rubani</strong>
-      A short paragraph about Rubani and the bakery's story goes here.
+    <div class="about-card">
+      <div class="section-eyebrow">Our Story</div>
+      <h2>Meet Rubani</h2>
+      <p>At <strong>Ms. Lil Baker</strong>, every bake is crafted with care, patience, and premium ingredients. What started in a home kitchen in Delhi has grown into a boutique bakery dedicated to small-batch, made-to-order treats. From rich cocoa brownies to delicate cheesecakes, everything is baked fresh from scratch—no preservatives, no shortcuts, just real homemade goodness.</p>
     </div>
   </div>
 </section>
 
-<section id="contact">
+<section id="contact" class="contact-section">
   <div class="wrap">
-    <div class="placeholder-block">
-      <strong>Reserved — Contact / Order Details</strong>
-      Phone, WhatsApp, Instagram, delivery areas, and the actual order flow go here once we build that part.
-    </div>
-  </div>
-</section>
+    <div class="contact-card">
+      <div class="section-eyebrow">Get In Touch</div>
+      <h2>How to Order</h2>
+      <p>Because every order is baked fresh, please place custom cake orders <strong>24–48 hours in advance</strong>.</p>
+      
+      <div class="contact-info-grid">
+        <div class="info-item">
+          <i class="fa-solid fa-location-dot"></i>
+          <div>
+            <strong>Delivery Area</strong>
+            <span>Delhi NCR (Pick-up & Delivery)</span>
+          </div>
+        </div>
+        <div class="info-item">
+          <i class="fa-solid fa-clock"></i>
+          <div>
+            <strong>Notice Required</strong>
+            <span>Freshly baked to order</span>
+          </div>
+        </div>
+      </div>
 
-<footer class="site-footer">
-  <div class="wrap">Ms. Lil Baker · Delhi</div>
-</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
-<script src="script.js"></script>
-</body>
-</html>
+      <div class="contact-actions">
+        <a href="https://wa.me/?text=Hi%20Rubani!%20I'd%20like%20to%20order%20from%20Ms.%20Lil%20Baker." target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp">
+          <i class="fa-brands fa-whatsapp"></i> Order on WhatsApp
+        </a>
