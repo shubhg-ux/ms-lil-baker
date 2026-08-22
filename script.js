@@ -1,13 +1,71 @@
-let cart=JSON.parse(localStorage.getItem('msLilBakerCart')||'[]');
-const config=window.MSB_CONFIG||{url:'',anonKey:''};
-const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-const saveCart=()=>{localStorage.setItem('msLilBakerCart',JSON.stringify(cart));renderCart()};const money=n=>`₹${Number(n||0).toLocaleString('en-IN')}`;const orderCode=id=>`MLB-${String(id).padStart(4,'0')}`;const fallbackPhotos=window.MSB_PHOTOS||{};
-function renderCart(){const count=$('#cartCount');if(count)count.textContent=cart.reduce((a,i)=>a+(Number(i.qty)||0),0);const b=$('#cartItems');if(!b)return;b.innerHTML=cart.length?cart.map((i,x)=>`<div class="cart-row"><div class="cart-product"><img src="${safeAttr(i.image||fallbackPhotos[i.slug]||'')}" alt=""><div><strong>${safe(i.name)}</strong><div class="small">${Number(i.price)>0?money(i.price):'Price on request'}</div></div></div><div class="qty"><button type="button" data-dec="${x}">−</button><span>${i.qty}</span><button type="button" data-inc="${x}">+</button><button type="button" data-remove="${x}" class="remove">×</button></div></div>`).join(''):'<div class="empty-cart"><div>🧁</div><strong>Your cart is waiting for something sweet.</strong><p>Add a treat from the menu and it will appear here.</p></div>';$('#cartTotal').textContent=money(cart.reduce((a,i)=>a+(Number(i.price)||0)*(Number(i.qty)||0),0))}
-function openModal(id){const m=$('#'+id);if(m){m.classList.add('show');m.setAttribute('aria-hidden','false')}}function closeModal(id){const m=$('#'+id);if(m){m.classList.remove('show');m.setAttribute('aria-hidden','true')}}function bindFilters(){$$('.filter').forEach(f=>f.onclick=()=>{$$('.filter').forEach(x=>x.classList.remove('active'));f.classList.add('active');const s=f.dataset.filter;$$('.product-card').forEach(c=>c.style.display=s==='all'||c.dataset.category===s?'':'none')})}function showToast(text){const t=$('#toast');if(!t)return;t.textContent=text;t.classList.add('show');clearTimeout(window._toast);window._toast=setTimeout(()=>t.classList.remove('show'),2400)}
-document.addEventListener('click',e=>{const add=e.target.closest('.add-btn');if(add){const c=add.closest('.product-card'),item={name:c.dataset.name,slug:c.dataset.slug,price:Number(c.dataset.price)||0,image:c.dataset.image||''},found=cart.find(i=>i.name===item.name);if(found)found.qty++;else cart.push({...item,qty:1});saveCart();openModal('cartModal');showToast(`${item.name} added to cart`)}if(e.target.matches('[data-inc]')){cart[+e.target.dataset.inc].qty++;saveCart()}if(e.target.matches('[data-dec]')){const x=+e.target.dataset.dec;cart[x].qty--;if(cart[x].qty<=0)cart.splice(x,1);saveCart()}if(e.target.matches('[data-remove]')){cart.splice(+e.target.dataset.remove,1);saveCart()}if(e.target.matches('[data-close]'))closeModal(e.target.dataset.close)});
-$('#cartBtn')?.addEventListener('click',()=>openModal('cartModal'));$('#ctaCartBtn')?.addEventListener('click',()=>openModal('cartModal'));$('#customOrderBtn')?.addEventListener('click',()=>openModal('customModal'));window.addEventListener('click',e=>{if(e.target.classList.contains('modal'))closeModal(e.target.id)});
-async function submit(table,payload){if(!config.url||!config.anonKey)return{demo:true};const r=await fetch(`${config.url}/rest/v1/${table}?select=*`,{method:'POST',headers:{apikey:config.anonKey,Authorization:`Bearer ${config.anonKey}`,'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify(payload)});if(!r.ok)throw Error(await r.text());return{demo:false,data:await r.json()}}
-async function loadProducts(){if(!config.url||!config.anonKey)return;try{const r=await fetch(`${config.url}/rest/v1/products?select=id,name,slug,description,price,image_url,available,sort_order,category:categories(slug)&available=eq.true&order=sort_order.asc`,{headers:{apikey:config.anonKey,Authorization:`Bearer ${config.anonKey}`}});if(!r.ok)throw Error(await r.text());const products=await r.json(),grid=$('.product-grid');if(!grid)return;if(!products.length){grid.innerHTML='<div class="empty-menu"><strong>The menu is being freshly prepared.</strong><p>Check back soon for something sweet. 🍰</p></div>';return}grid.innerHTML=products.map(p=>{const photo=p.image_url||fallbackPhotos[p.slug]||'';return `<article class="product-card" data-category="${safeAttr(p.category?.slug||'other')}" data-name="${safeAttr(p.name)}" data-slug="${safeAttr(p.slug||'')}" data-price="${Number(p.price)||0}" data-image="${safeAttr(photo)}"><div class="product-photo">${photo?`<img src="${safeAttr(photo)}" alt="${safeAttr(p.name)}" loading="lazy">`:'<span>🍰</span>'}</div><div class="product-info"><div><h3>${safe(p.name)}</h3><p>${Number(p.price)>0?money(p.price):'Price on request'}</p></div><button class="add-btn">Add</button></div><p class="product-description">${safe(p.description||'')}</p></article>`}).join('');bindFilters()}catch(err){console.error(err);const grid=$('.product-grid');if(grid)grid.innerHTML='<div class="empty-menu"><strong>Menu temporarily unavailable.</strong><p>Please refresh the page in a moment.</p></div>'}}
-function safe(s){return String(s??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]))}function safeAttr(s){return safe(s)}
-$('#orderForm')?.addEventListener('submit',async e=>{e.preventDefault();if(!cart.length){$('#orderStatus').textContent='Your cart is empty — add a treat first.';return}const d=Object.fromEntries(new FormData(e.target)),total=cart.reduce((a,i)=>a+(Number(i.price)||0)*i.qty,0),items=cart.map(i=>({name:i.name,slug:i.slug||'',price:Number(i.price)||0,qty:Number(i.qty)||1}));$('#orderStatus').textContent='Sending your order…';try{const r=await submit('orders',{customer_name:d.customer_name,phone:d.phone,requested_date:d.date,notes:d.notes,items,total_amount:total,status:'new'});if(r.demo){$('#orderStatus').textContent='Demo mode is active.';return}const row=r.data?.[0];if(!row?.id||!row?.tracking_token)throw Error('Order tracking details were not returned');cart=[];saveCart();e.target.reset();closeModal('cartModal');$('#successOrderCode').textContent=orderCode(row.id);$('#successOrderLink').href=`track.html?token=${encodeURIComponent(row.tracking_token)}&id=${row.id}`;openModal('successModal')}catch(err){console.error(err);$('#orderStatus').textContent='We could not place the order. Please try again.'}});
-$('#customForm')?.addEventListener('submit',async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target));$('#customStatus').textContent='Sending your request…';try{const r=await submit('custom_requests',{...d,status:'new'});e.target.reset();$('#customStatus').textContent=r.demo?'Demo mode is active.':'Request sent — we will get back to you soon.'}catch(err){console.error(err);$('#customStatus').textContent='Could not send the request. Please try again.'}});renderCart();bindFilters();loadProducts();
+// Ms. Lil Baker — customer site logic
+
+let allProducts = [];
+let activeCategory = "All";
+
+async function loadProducts() {
+  const grid = document.getElementById("productGrid");
+
+  const { data, error } = await supabaseClient
+    .from("products")
+    .select("*")
+    .eq("is_available", true)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Failed to load products:", error);
+    grid.innerHTML = `<div class="empty-state">Couldn't load the menu right now. Please refresh.</div>`;
+    return;
+  }
+
+  allProducts = data || [];
+  renderGrid();
+}
+
+function renderGrid() {
+  const grid = document.getElementById("productGrid");
+  const items = activeCategory === "All"
+    ? allProducts
+    : allProducts.filter(p => p.category === activeCategory);
+
+  if (items.length === 0) {
+    grid.innerHTML = `<div class="empty-state">Nothing here yet — check back soon.</div>`;
+    return;
+  }
+
+  grid.innerHTML = items.map(p => `
+    <div class="card">
+      <div class="card-photo">
+        ${p.photo_url
+          ? `<img src="${escapeHtml(p.photo_url)}" alt="${escapeHtml(p.name)}" loading="lazy">`
+          : ""}
+      </div>
+      <div class="card-scallop"></div>
+      <div class="card-body">
+        <div class="card-cat">${escapeHtml(p.category)}</div>
+        <h3 class="card-name">${escapeHtml(p.name)}</h3>
+        <p class="card-desc">${escapeHtml(p.description || "")}</p>
+        <div class="card-foot">
+          <span class="card-price">${Number(p.price).toFixed(0)}</span>
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str ?? "";
+  return div.innerHTML;
+}
+
+document.getElementById("tabs").addEventListener("click", (e) => {
+  const btn = e.target.closest(".tab");
+  if (!btn) return;
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  btn.classList.add("active");
+  activeCategory = btn.dataset.cat;
+  renderGrid();
+});
+
+loadProducts();
