@@ -44,7 +44,7 @@ document.getElementById("loginBtn").addEventListener("click", async () => {
   msg.textContent = "";
 
   if (!email || !password) {
-    msg.textContent = "Please enter both email and password.";
+    msg.textContent = "Please enter email and password.";
     return;
   }
 
