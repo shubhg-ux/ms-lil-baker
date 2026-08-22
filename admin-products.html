@@ -3,138 +3,125 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ms. Lil Baker — Manage Bakery Products</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Ms. Lil Baker — Dashboard</title>
   <link rel="stylesheet" href="admin.css">
-  <!-- FontAwesome Icons for Dashboard UI -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-<header class="site-header">
-  <div class="wrap">
-    <a href="index.html" class="brand">
-      <span class="brand-seal">MLB</span>
-      <span>
-        <span class="brand-name">Ms. Lil Baker</span>
-        <span class="brand-sub">Bakery Control Room</span>
-      </span>
+<div class="app-layout">
+  <!-- Fixed Sidebar Navigation -->
+  <aside class="app-sidebar">
+    <a href="index.html" class="sidebar-brand">
+      <div class="brand-badge">MLB</div>
+      <div>
+        <div style="font-weight: 700; font-size: 15px;">Ms. Lil Baker</div>
+        <div style="font-size: 12px; color: var(--admin-muted);">Control Room</div>
+      </div>
     </a>
-    <div id="headerActions" class="admin-header-actions hidden">
-      <a class="btn btn-secondary" href="admin.html"><i class="fa-solid fa-receipt"></i> Orders</a>
-      <a class="btn btn-secondary" href="index.html" target="_blank"><i class="fa-solid fa-store"></i> Live Store</a>
-      <button class="btn btn-primary" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Log out</button>
+
+    <div class="nav-group">
+      <a href="admin.html" class="nav-item">
+        <i class="fa-solid fa-chart-line"></i> Orders Dashboard
+      </a>
+      <a href="admin-products.html" class="nav-item active">
+        <i class="fa-solid fa-cake-candles"></i> Product Catalog
+      </a>
+      <a href="index.html" target="_blank" class="nav-item">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i> View Storefront
+      </a>
     </div>
-  </div>
-</header>
 
-<!-- LOGIN VIEW -->
-<div class="wrap admin-shell" id="loginView">
-  <div class="admin-narrow login-card">
-    <div class="login-header">
-      <span class="brand-seal login-seal">MLB</span>
-      <h1>Rubani's Control Room</h1>
-      <p class="sub">Log in to manage your menu items, prices, and cake photos.</p>
-    </div>
-    
-    <div class="field">
-      <label for="loginEmail">Email Address</label>
-      <input type="email" id="loginEmail" placeholder="rubani@mslilbaker.com" autocomplete="username">
-    </div>
-    
-    <div class="field">
-      <label for="loginPassword">Password</label>
-      <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
-    </div>
-    
-    <button class="btn btn-primary btn-full" id="loginBtn">
-      <i class="fa-solid fa-lock"></i> Log in
-    </button>
-    
-    <div class="form-msg error" id="loginMsg"></div>
-  </div>
-</div>
-
-<!-- ADMIN VIEW (hidden until logged in) -->
-<div class="wrap admin-shell hidden" id="adminView">
-  <div class="admin-bar">
-    <div>
-      <span class="section-eyebrow">Catalog Manager</span>
-      <h1>Manage Menu Products</h1>
-    </div>
-  </div>
-
-  <div class="admin-grid">
-    <!-- PRODUCT FORM PANEL -->
-    <div class="panel form-panel">
-      <h2 id="formTitle"><i class="fa-solid fa-plus"></i> Add a Baked Product</h2>
-      
-      <div class="photo-preview-wrap">
-        <div class="upload-preview" id="uploadPreview">
-          <i class="fa-regular fa-image placeholder-icon"></i>
-          <span>No photo selected</span>
-        </div>
-      </div>
-
-      <div class="field">
-        <label for="photoInput">Product Photo</label>
-        <div class="file-drop-zone">
-          <input type="file" id="photoInput" accept="image/*">
-        </div>
-      </div>
-
-      <div class="field">
-        <label for="nameInput">Product Name</label>
-        <input type="text" id="nameInput" placeholder="e.g. Belgian Chocolate Truffle Cake">
-      </div>
-
-      <div class="field-row">
-        <div class="field">
-          <label for="categoryInput">Category</label>
-          <select id="categoryInput">
-            <option>Cakes</option>
-            <option>Brownies</option>
-            <option>Cheesecakes</option>
-            <option>Cupcakes</option>
-            <option>Pastries</option>
-            <option>Custom Bakes</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label for="priceInput">Price (₹)</label>
-          <input type="number" id="priceInput" min="0" placeholder="e.g. 1200">
-        </div>
-      </div>
-
-      <div class="field">
-        <label for="descInput">Short Description (optional)</label>
-        <textarea id="descInput" rows="3" placeholder="e.g. Rich 55% dark chocolate ganache, layered sponge, salted caramel drizzle."></textarea>
-      </div>
-
-      <button class="btn btn-primary btn-full" id="saveBtn">
-        <i class="fa-solid fa-check"></i> Save Product
+    <div style="margin-top: auto;">
+      <button id="logoutBtn" class="btn-ui btn-ui-secondary" style="width: 100%;">
+        <i class="fa-solid fa-right-from-bracket"></i> Log Out
       </button>
-      
-      <button class="btn btn-ghost btn-full hidden" id="cancelEditBtn">
-        Cancel Edit
+    </div>
+  </aside>
+
+  <!-- Dashboard Main Workspace -->
+  <main class="app-main">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Product Catalog</h1>
+        <div style="color: var(--admin-muted); font-size: 14px; margin-top: 4px;">
+          Manage your bakery items, pricing, and live inventory.
+        </div>
+      </div>
+      <button class="btn-ui btn-ui-primary" id="openAddModal">
+        <i class="fa-solid fa-plus"></i> Add New Product
       </button>
-
-      <div class="form-msg" id="saveMsg"></div>
     </div>
 
-    <!-- PRODUCT CATALOG LIST -->
-    <div class="panel catalog-panel">
-      <div class="catalog-header">
-        <h2>Active Menu (<span id="productCount">0</span>)</h2>
-        <input type="text" id="searchProducts" class="input-sm" placeholder="Search menu items…">
-      </div>
+    <div style="display: grid; grid-template-columns: 340px 1fr; gap: 24px; align-items: start;">
       
-      <div id="productList" class="product-admin-grid">
-        <p class="loading-state">Loading product catalog…</p>
+      <!-- Product Form Panel -->
+      <div class="panel-card">
+        <h2 style="font-size: 18px; margin-top: 0; margin-bottom: 20px;" id="formTitle">
+          <i class="fa-solid fa-pen-to-square"></i> Product Details
+        </h2>
+
+        <div class="form-group">
+          <label class="form-label">Product Image</label>
+          <div class="dropzone-box" onclick="document.getElementById('photoInput').click()">
+            <div id="uploadPreview">
+              <i class="fa-solid fa-cloud-arrow-up" style="font-size: 28px; color: var(--admin-muted);"></i>
+              <div style="font-size: 13px; color: var(--admin-muted); margin-top: 8px;">Click to upload photo</div>
+            </div>
+          </div>
+          <input type="file" id="photoInput" accept="image/*" style="display: none;">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Title</label>
+          <input type="text" id="nameInput" class="form-control" placeholder="e.g. Red Velvet Cake">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select id="categoryInput" class="form-control">
+              <option>Cakes</option>
+              <option>Brownies</option>
+              <option>Cheesecakes</option>
+              <option>Pastries</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Price (₹)</label>
+            <input type="number" id="priceInput" class="form-control" placeholder="1200">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea id="descInput" class="form-control" rows="3" placeholder="Flavors, weight, allergen info..."></textarea>
+        </div>
+
+        <button class="btn-ui btn-ui-primary" id="saveBtn" style="width: 100%;">
+          <i class="fa-solid fa-floppy-disk"></i> Save Product
+        </button>
+        <button class="btn-ui btn-ui-secondary hidden" id="cancelEditBtn" style="width: 100%; margin-top: 8px;">
+          Cancel
+        </button>
+
+        <div id="saveMsg" class="form-msg"></div>
       </div>
+
+      <!-- Live Catalog Grid -->
+      <div class="panel-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h2 style="font-size: 18px; margin: 0;">Menu Items (<span id="productCount">0</span>)</h2>
+          <input type="text" id="searchProducts" class="form-control" placeholder="Search products..." style="width: 220px;">
+        </div>
+
+        <div id="productList" class="catalog-grid">
+          <!-- Dynamic product items will render here -->
+        </div>
+      </div>
+
     </div>
-  </div>
+  </main>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
