@@ -1,1 +1,217 @@
-const cfg=window.MSB_CONFIG||{};const client=window.supabase?.createClient(cfg.url,cfg.anonKey);const $=s=>document.querySelector(s);const notice=$('#notice'),modal=$('#modal');let rows=[];const photos=window.MSB_PHOTOS||{};async function requireAdmin(){if(!client)throw new Error('Supabase client unavailable');const {data:{session}}=await client.auth.getSession();if(!session){location.href='admin-login.html';return null}return session}async function api(path,opts={}){if(!cfg.url||!cfg.anonKey)throw new Error('Supabase is not connected in config.js');return fetch(cfg.url+'/rest/v1/'+path,{...opts,headers:{apikey:cfg.anonKey,Authorization:'Bearer '+cfg.anonKey,'Content-Type':'application/json',...(opts.headers||{})}})}function esc(s){return String(s??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]))}async function load(){try{const session=await requireAdmin();if(!session)return;notice.textContent='';const r=await api('categories?select=id,name&order=name');if(!r.ok)throw new Error(await r.text());const cats=await r.json();$('#category').innerHTML=cats.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');const p=await api('products?select=*,categories(name)&order=sort_order.asc,created_at.desc');if(!p.ok)throw new Error(await p.text());rows=await p.json();render()}catch(e){console.error(e);notice.textContent=e.message;$('#productList').innerHTML='<p>Unable to load products.</p>'}}function imageFor(p){return p.image_url||photos[p.slug]||''}function card(p){const img=imageFor(p);return `<article class="product"><div class="thumb">${img?`<img src="${esc(img)}" alt="${esc(p.name)}">`:'🍰'}</div><div class="info"><h3>${esc(p.name)}</h3><p>${esc(p.categories?.name||'Other')} · ${p.price?'₹'+Number(p.price).toLocaleString('en-IN'):'Price not set'}</p><span class="pill ${p.available?'on':'off'}">${p.available?'Available':'Hidden'}</span></div><div class="actions"><button onclick="edit(${p.id})">Edit</button><button onclick="toggle(${p.id},${!p.available})">${p.available?'Hide':'Show'}</button><button class="danger" onclick="removeProduct(${p.id})">Delete</button></div></article>`}function render(){$('#productList').innerHTML=rows.length?rows.map(card).join(''):'<p>No products yet. Add your first one.</p>'}function open(p={}){$('#formTitle').textContent=p.id?'Edit product':'Add product';$('#id').value=p.id||'';$('#name').value=p.name||'';$('#price').value=p.price??0;$('#description').value=p.description||'';$('#image_url').value=p.image_url||'';$('#photo').value='';$('#photoPreview').innerHTML=imageFor(p)?`<img src="${esc(imageFor(p))}" alt="Current photo"><small>Current product photo</small>`:'';$('#available').checked=p.available!==false;$('#sort_order').value=p.sort_order||0;$('#category').value=p.category_id||$('#category option:first-child')?.value||'';modal.classList.add('show')}window.edit=id=>open(rows.find(x=>x.id===id)||{});window.toggle=async(id,val)=>{try{const r=await api('products?id=eq.'+id,{method:'PATCH',body:JSON.stringify({available:val}),headers:{Prefer:'return=minimal'}});if(!r.ok)throw new Error(await r.text());await load()}catch(e){notice.textContent=e.message}};window.removeProduct=async id=>{if(!confirm('Delete this product?'))return;try{const r=await api('products?id=eq.'+id,{method:'DELETE',headers:{Prefer:'return=minimal'}});if(!r.ok)throw new Error(await r.text());await load()}catch(e){notice.textContent=e.message}};$('#newBtn').onclick=()=>open();$('#close').onclick=()=>modal.classList.remove('show');$('#logout')?.addEventListener('click',async()=>{await client.auth.signOut();location.href='admin-login.html'});$('#photo').addEventListener('change',e=>{const f=e.target.files?.[0];if(!f)return;if(f.size>2*1024*1024){notice.textContent='Please choose an image under 2 MB.';e.target.value='';return}const r=new FileReader();r.onload=()=>{$('#photoPreview').innerHTML=`<img src="${r.result}" alt="New photo"><small>New photo selected</small>`};r.readAsDataURL(f)});$('#productForm').onsubmit=async e=>{e.preventDefault();const id=$('#id').value;const file=$('#photo').files?.[0];let imageUrl=$('#image_url').value.trim()||null;try{if(file){const r=new FileReader();imageUrl=await new Promise((resolve,reject)=>{r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file)})}else if(!imageUrl){const current=rows.find(x=>String(x.id)===String(id));imageUrl=current?.image_url||photos[current?.slug]||null}const payload={name:$('#name').value.trim(),slug:((id?rows.find(x=>String(x.id)===String(id))?.slug:$('#name').value.trim())||'product').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''),category_id:Number($('#category').value),price:Number($('#price').value),description:$('#description').value.trim(),image_url:imageUrl,available:$('#available').checked,sort_order:Number($('#sort_order').value)||0};const r=await api(id?'products?id=eq.'+id:'products',{method:id?'PATCH':'POST',body:JSON.stringify(payload),headers:{Prefer:'return=minimal'}});if(!r.ok)throw new Error(await r.text());modal.classList.remove('show');notice.textContent='Product saved.';await load()}catch(e){console.error(e);notice.textContent='Could not save product: '+e.message}};load();
+// Ms. Lil Baker — admin product manager
+
+const loginView = document.getElementById("loginView");
+const adminView = document.getElementById("adminView");
+
+let editingId = null;
+let selectedFile = null;
+
+// ---------- Auth ----------
+
+async function checkSession() {
+  const { data } = await supabaseClient.auth.getSession();
+  if (data.session) {
+    showAdmin();
+  } else {
+    showLogin();
+  }
+}
+
+function showLogin() {
+  loginView.classList.remove("hidden");
+  adminView.classList.add("hidden");
+}
+
+function showAdmin() {
+  loginView.classList.add("hidden");
+  adminView.classList.remove("hidden");
+  loadProductList();
+}
+
+document.getElementById("loginBtn").addEventListener("click", async () => {
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  const msg = document.getElementById("loginMsg");
+  msg.textContent = "";
+
+  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if (error) {
+    msg.textContent = "That email or password isn't right.";
+    return;
+  }
+  showAdmin();
+});
+
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+  await supabaseClient.auth.signOut();
+  showLogin();
+});
+
+// ---------- Photo preview ----------
+
+document.getElementById("photoInput").addEventListener("change", (e) => {
+  selectedFile = e.target.files[0] || null;
+  const preview = document.getElementById("uploadPreview");
+  if (selectedFile) {
+    preview.innerHTML = `<img src="${URL.createObjectURL(selectedFile)}" alt="">`;
+  } else {
+    preview.innerHTML = "No photo selected";
+  }
+});
+
+// ---------- Save (add or edit) ----------
+
+document.getElementById("saveBtn").addEventListener("click", async () => {
+  const name = document.getElementById("nameInput").value.trim();
+  const category = document.getElementById("categoryInput").value;
+  const price = document.getElementById("priceInput").value;
+  const description = document.getElementById("descInput").value.trim();
+  const msg = document.getElementById("saveMsg");
+  msg.className = "form-msg";
+  msg.textContent = "";
+
+  if (!name || !price) {
+    msg.classList.add("error");
+    msg.textContent = "Name and price are required.";
+    return;
+  }
+
+  msg.textContent = "Saving…";
+
+  let photo_url = null;
+
+  try {
+    if (selectedFile) {
+      const fileExt = selectedFile.name.split(".").pop();
+      const filePath = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+
+      const { error: uploadError } = await supabaseClient.storage
+        .from("product-photos")
+        .upload(filePath, selectedFile);
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabaseClient.storage
+        .from("product-photos")
+        .getPublicUrl(filePath);
+
+      photo_url = urlData.publicUrl;
+    }
+
+    const payload = { name, category, price: Number(price), description };
+    if (photo_url) payload.photo_url = photo_url;
+
+    if (editingId) {
+      const { error } = await supabaseClient.from("products").update(payload).eq("id", editingId);
+      if (error) throw error;
+    } else {
+      const { error } = await supabaseClient.from("products").insert(payload);
+      if (error) throw error;
+    }
+
+    msg.classList.add("ok");
+    msg.textContent = "Saved.";
+    resetForm();
+    loadProductList();
+  } catch (err) {
+    console.error(err);
+    msg.classList.add("error");
+    msg.textContent = "Something went wrong saving that. Try again.";
+  }
+});
+
+document.getElementById("cancelEditBtn").addEventListener("click", resetForm);
+
+function resetForm() {
+  editingId = null;
+  selectedFile = null;
+  document.getElementById("formTitle").textContent = "Add a product";
+  document.getElementById("nameInput").value = "";
+  document.getElementById("priceInput").value = "";
+  document.getElementById("descInput").value = "";
+  document.getElementById("categoryInput").value = "Cakes";
+  document.getElementById("photoInput").value = "";
+  document.getElementById("uploadPreview").innerHTML = "No photo selected";
+  document.getElementById("cancelEditBtn").classList.add("hidden");
+}
+
+// ---------- List / edit / delete / toggle ----------
+
+async function loadProductList() {
+  const list = document.getElementById("productList");
+  const { data, error } = await supabaseClient
+    .from("products")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    list.innerHTML = `<p style="color:var(--berry-dark); font-size:13px;">Couldn't load products.</p>`;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    list.innerHTML = `<p style="color:var(--ink-soft); font-size:13px;">No products yet — add your first one.</p>`;
+    return;
+  }
+
+  list.innerHTML = data.map(p => `
+    <div class="product-row ${p.is_available ? "" : "unavailable"}" data-id="${p.id}">
+      ${p.photo_url
+        ? `<img src="${p.photo_url}" alt="">`
+        : `<div class="ph-placeholder"></div>`}
+      <div class="product-info">
+        <div class="pname">${escapeHtml(p.name)}</div>
+        <div class="pmeta">${escapeHtml(p.category)} · ₹${Number(p.price).toFixed(0)}${p.is_available ? "" : " · hidden"}</div>
+      </div>
+      <div class="row-actions">
+        <button class="icon-btn" data-action="edit">Edit</button>
+        <button class="icon-btn" data-action="toggle">${p.is_available ? "Hide" : "Show"}</button>
+        <button class="icon-btn danger" data-action="delete">Delete</button>
+      </div>
+    </div>
+  `).join("");
+
+  window.__products = data;
+}
+
+document.getElementById("productList").addEventListener("click", async (e) => {
+  const btn = e.target.closest(".icon-btn");
+  if (!btn) return;
+  const row = e.target.closest(".product-row");
+  const id = row.dataset.id;
+  const product = (window.__products || []).find(p => p.id === id);
+  if (!product) return;
+
+  if (btn.dataset.action === "edit") {
+    editingId = id;
+    document.getElementById("formTitle").textContent = "Edit product";
+    document.getElementById("nameInput").value = product.name;
+    document.getElementById("categoryInput").value = product.category;
+    document.getElementById("priceInput").value = product.price;
+    document.getElementById("descInput").value = product.description || "";
+    document.getElementById("uploadPreview").innerHTML = product.photo_url
+      ? `<img src="${product.photo_url}" alt="">`
+      : "No photo selected";
+    document.getElementById("cancelEditBtn").classList.remove("hidden");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  if (btn.dataset.action === "toggle") {
+    await supabaseClient.from("products").update({ is_available: !product.is_available }).eq("id", id);
+    loadProductList();
+  }
+
+  if (btn.dataset.action === "delete") {
+    if (!confirm(`Delete "${product.name}"? This can't be undone.`)) return;
+    await supabaseClient.from("products").delete().eq("id", id);
+    loadProductList();
+  }
+});
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str ?? "";
+  return div.innerHTML;
+}
+
+checkSession();
