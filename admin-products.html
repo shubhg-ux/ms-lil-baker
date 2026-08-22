@@ -4,71 +4,70 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ms. Lil Baker — Admin</title>
-  <link rel="stylesheet" href="style.css"> <!-- Your main theme vars -->
+  <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="admin-products.css">
 </head>
 <body>
 
 <div class="admin-shell">
 
-  <!-- Login Form View -->
+  <!-- LOGIN VIEW -->
   <div id="loginView" class="admin-narrow">
     <div class="login-card">
-      <h1>Admin Sign In</h1>
-      <p class="sub">Enter your credentials to manage products.</p>
+      <h1>Rubani's Control Room</h1>
+      <p class="sub">Log in to manage menu items, prices, and cake photos.</p>
 
       <div class="field">
-        <label>Email</label>
-        <input type="email" id="loginEmail" placeholder="you@domain.com">
+        <label for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" placeholder="you@mslilbaker.com" autocomplete="username">
       </div>
 
       <div class="field">
-        <label>Password</label>
-        <input type="password" id="loginPassword">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" autocomplete="current-password">
       </div>
 
-      <button id="loginBtn" class="icon-btn" style="width: 100%; padding: 10px; margin-top: 8px;">Sign In</button>
+      <button id="loginBtn" class="icon-btn" style="width: 100%; padding: 10px; margin-top: 8px;">Log In</button>
       <div id="loginMsg" class="form-msg error"></div>
     </div>
   </div>
 
-  <!-- Main Management View -->
+  <!-- ADMIN VIEW -->
   <div id="adminView" class="hidden">
-    
     <div class="admin-bar">
-      <h1>Ms. Lil Baker Admin</h1>
+      <h1>Manage Products</h1>
       <button id="logoutBtn" class="icon-btn">Log Out</button>
     </div>
 
     <div class="admin-grid">
-      
-      <!-- Product Form Panel -->
+      <!-- FORM PANEL -->
       <div class="panel">
-        <h2 id="formTitle">Add a Product</h2>
+        <h2 id="formTitle">Add a product</h2>
 
         <div class="field">
-          <label>Product Name</label>
+          <label for="nameInput">Name</label>
           <input type="text" id="nameInput" placeholder="e.g. Chocolate Fudge Cake">
         </div>
 
         <div class="field">
-          <label>Category</label>
+          <label for="categoryInput">Category</label>
           <select id="categoryInput">
             <option value="Cakes">Cakes</option>
             <option value="Brownies">Brownies</option>
             <option value="Cheesecakes">Cheesecakes</option>
             <option value="Cupcakes">Cupcakes</option>
+            <option value="Pastries">Pastries</option>
           </select>
         </div>
 
         <div class="field">
-          <label>Price (₹)</label>
+          <label for="priceInput">Price (₹)</label>
           <input type="number" id="priceInput" placeholder="850">
         </div>
 
         <div class="field">
-          <label>Description</label>
-          <textarea id="descInput" placeholder="Flavors, size, ingredients..."></textarea>
+          <label for="descInput">Description</label>
+          <textarea id="descInput" placeholder="Flavors, weight, ingredients..."></textarea>
         </div>
 
         <div class="field">
@@ -78,19 +77,18 @@
         </div>
 
         <button id="saveBtn" class="icon-btn" style="width: 100%; padding: 10px; margin-top: 12px;">Save Product</button>
-        <button id="cancelEditBtn" class="icon-btn hidden" style="width: 100%; padding: 10px; margin-top: 6px;">Cancel</button>
+        <button id="cancelEditBtn" class="icon-btn hidden" style="width: 100%; padding: 10px; margin-top: 6px;">Cancel Edit</button>
 
         <div id="saveMsg" class="form-msg"></div>
       </div>
 
-      <!-- Menu Items List -->
+      <!-- CATALOG PANEL -->
       <div class="panel">
         <h2>Current Menu</h2>
         <div id="productList">
-          <p style="color:var(--ink-soft); font-size:13px;">Loading products...</p>
+          <p style="color: var(--ink-soft); font-size: 13px;">Loading products...</p>
         </div>
       </div>
-
     </div>
   </div>
 
