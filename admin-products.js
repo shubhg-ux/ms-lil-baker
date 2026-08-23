@@ -1,25 +1,17 @@
 // Ms. Lil Baker — admin product manager
 
-const config = window.MSB_CONFIG || {};
-const supabaseClient = window.supabase
-  ? window.supabase.createClient(config.url, config.anonKey)
-  : null;
-
 const loginView = document.getElementById("loginView");
 const adminView = document.getElementById("adminView");
 
 let editingId = null;
 let selectedFile = null;
+let allAdminProducts = [];
 
 // ---------- Auth ----------
 
 async function checkSession() {
-  if (!supabaseClient) {
-    console.error("Supabase client failed to initialize. Check config.js.");
-    return;
-  }
   const { data } = await supabaseClient.auth.getSession();
-  if (data?.session) {
+  if (data.session) {
     showAdmin();
   } else {
     showLogin();
@@ -43,14 +35,9 @@ document.getElementById("loginBtn").addEventListener("click", async () => {
   const msg = document.getElementById("loginMsg");
   msg.textContent = "";
 
-  if (!email || !password) {
-    msg.textContent = "Please enter email and password.";
-    return;
-  }
-
   const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
   if (error) {
-    msg.textContent = error.message || "That email or password isn't right.";
+    msg.textContent = "That email or password isn't right.";
     return;
   }
   showAdmin();
@@ -66,10 +53,13 @@ document.getElementById("logoutBtn").addEventListener("click", async () => {
 document.getElementById("photoInput").addEventListener("change", (e) => {
   selectedFile = e.target.files[0] || null;
   const preview = document.getElementById("uploadPreview");
+  const label = document.getElementById("fileLabel");
   if (selectedFile) {
     preview.innerHTML = `<img src="${URL.createObjectURL(selectedFile)}" alt="">`;
+    label.textContent = selectedFile.name;
   } else {
-    preview.innerHTML = "No photo selected";
+    preview.innerHTML = "Tap below to add a photo";
+    label.textContent = "Choose photo";
   }
 });
 
@@ -81,7 +71,6 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
   const price = document.getElementById("priceInput").value;
   const description = document.getElementById("descInput").value.trim();
   const msg = document.getElementById("saveMsg");
-  
   msg.className = "form-msg";
   msg.textContent = "";
 
@@ -113,14 +102,7 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
       photo_url = urlData.publicUrl;
     }
 
-    const payload = { 
-      name, 
-      category, 
-      price: Number(price), 
-      description,
-      is_available: true 
-    };
-    
+    const payload = { name, category, price: Number(price), description };
     if (photo_url) payload.photo_url = photo_url;
 
     if (editingId) {
@@ -136,9 +118,9 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     resetForm();
     loadProductList();
   } catch (err) {
-    console.error("Save Error:", err);
+    console.error(err);
     msg.classList.add("error");
-    msg.textContent = err.message || "Something went wrong saving that. Try again.";
+    msg.textContent = "Something went wrong saving that. Try again.";
   }
 });
 
@@ -153,55 +135,90 @@ function resetForm() {
   document.getElementById("descInput").value = "";
   document.getElementById("categoryInput").value = "Cakes";
   document.getElementById("photoInput").value = "";
-  document.getElementById("uploadPreview").innerHTML = "No photo selected";
+  document.getElementById("uploadPreview").innerHTML = "Tap below to add a photo";
+  document.getElementById("fileLabel").textContent = "Choose photo";
   document.getElementById("cancelEditBtn").classList.add("hidden");
 }
 
-// ---------- List / edit / delete / toggle ----------
+// ---------- List: load, search, filter, group ----------
 
 async function loadProductList() {
   const list = document.getElementById("productList");
   const { data, error } = await supabaseClient
     .from("products")
     .select("*")
+    .order("category", { ascending: true })
     .order("created_at", { ascending: false });
 
   if (error) {
-    list.innerHTML = `<p style="color:var(--berry-dark); font-size:13px;">Couldn't load products: ${escapeHtml(error.message)}</p>`;
+    list.innerHTML = `<p style="color:var(--plum-dark); font-size:13px;">Couldn't load products.</p>`;
     return;
   }
 
-  if (!data || data.length === 0) {
-    list.innerHTML = `<p style="color:var(--ink-soft); font-size:13px;">No products yet — add your first one.</p>`;
-    return;
-  }
-
-  list.innerHTML = data.map(p => `
-    <div class="product-row ${p.is_available ? "" : "unavailable"}" data-id="${p.id}">
-      ${p.photo_url
-        ? `<img src="${p.photo_url}" alt="">`
-        : `<div class="ph-placeholder"></div>`}
-      <div class="product-info">
-        <div class="pname">${escapeHtml(p.name)}</div>
-        <div class="pmeta">${escapeHtml(p.category)} · ₹${Number(p.price).toFixed(0)}${p.is_available ? "" : " · hidden"}</div>
-      </div>
-      <div class="row-actions">
-        <button class="icon-btn" data-action="edit">Edit</button>
-        <button class="icon-btn" data-action="toggle">${p.is_available ? "Hide" : "Show"}</button>
-        <button class="icon-btn danger" data-action="delete">Delete</button>
-      </div>
-    </div>
-  `).join("");
-
-  window.__products = data;
+  allAdminProducts = data || [];
+  updateStats();
+  renderList();
 }
+
+function updateStats() {
+  const total = allAdminProducts.length;
+  const live = allAdminProducts.filter(p => p.is_available).length;
+  document.getElementById("statTotal").textContent = total;
+  document.getElementById("statLive").textContent = live;
+  document.getElementById("statHidden").textContent = total - live;
+}
+
+function renderList() {
+  const list = document.getElementById("productList");
+  const search = document.getElementById("searchInput").value.trim().toLowerCase();
+  const filterCat = document.getElementById("filterSelect").value;
+
+  let items = allAdminProducts;
+  if (filterCat !== "All") items = items.filter(p => p.category === filterCat);
+  if (search) items = items.filter(p => p.name.toLowerCase().includes(search));
+
+  if (items.length === 0) {
+    list.innerHTML = `<div class="list-empty-msg">Nothing matches — try a different search or filter.</div>`;
+    return;
+  }
+
+  // group by category for a tidier list
+  const groups = {};
+  items.forEach(p => {
+    if (!groups[p.category]) groups[p.category] = [];
+    groups[p.category].push(p);
+  });
+
+  list.innerHTML = Object.keys(groups).map(cat => `
+    <div class="cat-group-label">${escapeHtml(cat)}</div>
+    ${groups[cat].map(p => `
+      <div class="product-row ${p.is_available ? "" : "unavailable"}" data-id="${p.id}">
+        ${p.photo_url
+          ? `<img src="${p.photo_url}" alt="">`
+          : `<div class="ph-placeholder"></div>`}
+        <div class="product-info">
+          <div class="pname">${escapeHtml(p.name)}</div>
+          <div class="pmeta">₹${Number(p.price).toFixed(0)}</div>
+        </div>
+        <div class="row-actions">
+          <button class="icon-btn" data-action="edit">Edit</button>
+          <button class="icon-btn" data-action="toggle">${p.is_available ? "Hide" : "Show"}</button>
+          <button class="icon-btn danger" data-action="delete">Delete</button>
+        </div>
+      </div>
+    `).join("")}
+  `).join("");
+}
+
+document.getElementById("searchInput").addEventListener("input", renderList);
+document.getElementById("filterSelect").addEventListener("change", renderList);
 
 document.getElementById("productList").addEventListener("click", async (e) => {
   const btn = e.target.closest(".icon-btn");
   if (!btn) return;
   const row = e.target.closest(".product-row");
   const id = row.dataset.id;
-  const product = (window.__products || []).find(p => String(p.id) === String(id));
+  const product = allAdminProducts.find(p => p.id === id);
   if (!product) return;
 
   if (btn.dataset.action === "edit") {
@@ -213,7 +230,7 @@ document.getElementById("productList").addEventListener("click", async (e) => {
     document.getElementById("descInput").value = product.description || "";
     document.getElementById("uploadPreview").innerHTML = product.photo_url
       ? `<img src="${product.photo_url}" alt="">`
-      : "No photo selected";
+      : "Tap below to add a photo";
     document.getElementById("cancelEditBtn").classList.remove("hidden");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
