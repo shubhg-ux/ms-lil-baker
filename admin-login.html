@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ms. Lil Baker — Admin Login</title>
+  <title>Ms. Lil Baker — Admin Sign In</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="admin-products.css">
 </head>
@@ -16,56 +16,76 @@
 
     <div class="field">
       <label for="loginEmail">Email</label>
-      <input type="email" id="loginEmail" placeholder="you@mslilbaker.com" autocomplete="username">
+      <input type="email" id="loginEmail" placeholder="you@mslilbaker.com">
     </div>
 
     <div class="field">
       <label for="loginPassword">Password</label>
-      <input type="password" id="loginPassword" autocomplete="current-password">
+      <input type="password" id="loginPassword">
     </div>
 
-    <button id="loginBtn" class="icon-btn" style="width: 100%; padding: 10px; margin-top: 8px;">Log In</button>
-    <div id="loginMsg" class="form-msg error"></div>
+    <button type="button" id="loginBtn" class="icon-btn" style="width: 100%; padding: 12px; margin-top: 8px;">Sign In</button>
+    <div id="loginMsg" class="form-msg error" style="margin-top: 12px;"></div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
+
 <script>
-  const config = window.MSB_CONFIG || {};
-  const supabaseClient = window.supabase ? window.supabase.createClient(config.url, config.anonKey) : null;
-
-  // Check if already logged in
-  async function checkSession() {
-    if (!supabaseClient) return;
-    const { data } = await supabaseClient.auth.getSession();
-    if (data?.session) {
-      window.location.href = "admin-products.html";
-    }
-  }
-
-  document.getElementById("loginBtn").addEventListener("click", async () => {
-    const email = document.getElementById("loginEmail").value.trim();
-    const password = document.getElementById("loginPassword").value;
+  document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("loginBtn");
     const msg = document.getElementById("loginMsg");
-    msg.textContent = "";
 
-    if (!email || !password) {
-      msg.textContent = "Please enter both email and password.";
-      return;
-    }
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      msg.style.color = "var(--berry-dark, #b8294f)";
+      msg.textContent = "Connecting...";
 
-    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-    if (error) {
-      msg.textContent = error.message || "That email or password isn't right.";
-      return;
-    }
-    
-    // Redirect to product catalog on successful login
-    window.location.href = "admin-products.html";
+      // Check if config exists
+      if (!window.MSB_CONFIG || !window.MSB_CONFIG.url) {
+        msg.textContent = "Error: MSB_CONFIG is missing or invalid in config.js";
+        return;
+      }
+
+      // Check if Supabase SDK loaded
+      if (!window.supabase) {
+        msg.textContent = "Error: Supabase SDK failed to load from CDN.";
+        return;
+      }
+
+      try {
+        const supabaseClient = window.supabase.createClient(
+          window.MSB_CONFIG.url, 
+          window.MSB_CONFIG.anonKey
+        );
+
+        const email = document.getElementById("loginEmail").value.trim();
+        const password = document.getElementById("loginPassword").value;
+
+        if (!email || !password) {
+          msg.textContent = "Please enter both email and password.";
+          return;
+        }
+
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+        if (error) {
+          msg.textContent = "Auth Error: " + error.message;
+          return;
+        }
+
+        msg.style.color = "green";
+        msg.textContent = "Success! Redirecting...";
+        setTimeout(() => {
+          window.location.href = "admin-products.html";
+        }, 500);
+
+      } catch (err) {
+        msg.textContent = "Unexpected Error: " + err.message;
+      }
+    });
   });
-
-  checkSession();
 </script>
 </body>
 </html>
