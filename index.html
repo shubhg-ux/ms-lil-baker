@@ -1,162 +1,82 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ms. Lil Baker — Artisanal Bakes & Custom Cakes</title>
-  <link rel="stylesheet" href="style.css">
-  <!-- Google Fonts & FontAwesome -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Ms. Lil Baker | Homemade with Love</title>
+  <meta name="description" content="Small-batch cakes, brownies and cheesecakes from Ms. Lil Baker, Delhi.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <!-- Background 3D Canvas -->
-  <canvas id="hero-3d-canvas"></canvas>
-
-  <!-- Navigation -->
-  <nav class="navbar">
-    <a href="#" class="brand">
-      <span class="brand-accent">Ms. Lil</span> Baker
-    </a>
-    <div class="nav-links">
-      <a href="#menu">Menu</a>
-      <a href="#customizer">Custom Cake Studio</a>
-      <a href="#about">Our Story</a>
-    </div>
-    <button class="cart-trigger" id="cartBtn">
-      <i class="fa-solid fa-bag-shopping"></i>
-      <span class="cart-count" id="cartCount">0</span>
-    </button>
-  </nav>
-
-  <!-- Hero Section -->
-  <header class="hero">
-    <div class="hero-content">
-      <span class="hero-badge"><i class="fa-solid fa-sparkles"></i> Handcrafted Daily in Small Batches</span>
-      <h1 class="hero-title">Decadence Crafted with Heart & Flavor.</h1>
-      <p class="hero-subtitle">From cloud-soft cheesecakes to bespoke multi-tiered celebration bakes, explore our artisanal menu prepared using premium single-origin ingredients.</p>
-      <div class="hero-actions">
-        <a href="#menu" class="btn btn-primary">Explore Menu <i class="fa-solid fa-arrow-right"></i></a>
-        <a href="#customizer" class="btn btn-secondary"><i class="fa-solid fa-wand-magic-sparkles"></i> Design Custom Cake</a>
-      </div>
-    </div>
-    <div class="hero-card-floating">
-      <div class="floating-badge">Bestseller</div>
-      <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=600&q=80" alt="Signature Chocolate Cake">
-      <div class="floating-card-info">
-        <h3>Belgian Dark Truffle</h3>
-        <p>70% Valrhona Dark Chocolate Ganache</p>
-        <span class="price">₹1,250</span>
-      </div>
-    </div>
+  <div class="grain"></div>
+  <header class="navbar" id="top">
+    <a class="brand" href="#top"><span>Ms. Lil</span> Baker<small>HOME BAKERY · DELHI</small></a>
+    <nav class="nav-links">
+      <a href="#menu">Menu</a><a href="#studio">Custom Studio</a><a href="#story">Our story</a><a href="track.html">Track</a>
+    </nav>
+    <button class="bag-btn" id="cartBtn" aria-label="Open cart">Bag <b id="cartCount">0</b></button>
   </header>
 
-  <!-- Interactive Menu Section -->
-  <section id="menu" class="section">
-    <div class="section-header">
-      <h2>The Bakery Catalog</h2>
-      <p>Select a category to filter our freshest daily bakes.</p>
-    </div>
-
-    <!-- Category Filters -->
-    <div class="category-tabs" id="categoryTabs">
-      <button class="tab-btn active" data-cat="all">All Bakes</button>
-      <button class="tab-btn" data-cat="Cakes">Cakes</button>
-      <button class="tab-btn" data-cat="Brownies">Brownies</button>
-      <button class="tab-btn" data-cat="Cheesecakes">Cheesecakes</button>
-      <button class="tab-btn" data-cat="Cupcakes">Cupcakes</button>
-    </div>
-
-    <!-- Product Grid -->
-    <div class="product-grid" id="productGrid">
-      <!-- Dynamically populated via JavaScript -->
-    </div>
-  </section>
-
-  <!-- Interactive 3D/Dynamic Customizer Studio -->
-  <section id="customizer" class="section customizer-section">
-    <div class="customizer-container">
-      <div class="customizer-info">
-        <span class="hero-badge"><i class="fa-solid fa-cake-candles"></i> Interactive Studio</span>
-        <h2>Build Your Custom Cake</h2>
-        <p>Personalize your flavor profile, size, and custom messaging in real-time before placing your order.</p>
-
-        <form id="cakeBuilderForm" class="builder-form">
-          <div class="form-group">
-            <label>1. Select Flavor</label>
-            <select id="buildFlavor" class="custom-input">
-              <option value="Belgian Chocolate Truffle" data-price="1200">Belgian Chocolate Truffle (₹1,200)</option>
-              <option value="Classic Red Velvet" data-price="1100">Classic Red Velvet w/ Cream Cheese (₹1,100)</option>
-              <option value="Biscoff Cheesecake Bakes" data-price="1350">Lotus Biscoff Crunch (₹1,350)</option>
-              <option value="Fresh Strawberry Vanilla" data-price="1250">Fresh Strawberry Vanilla (₹1,250)</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>2. Choose Weight</label>
-            <div class="radio-pill-group">
-              <label class="radio-pill"><input type="radio" name="buildSize" value="0.5 kg" data-multiplier="1" checked> 0.5 kg</label>
-              <label class="radio-pill"><input type="radio" name="buildSize" value="1.0 kg" data-multiplier="1.8"> 1.0 kg</label>
-              <label class="radio-pill"><input type="radio" name="buildSize" value="2.0 kg" data-multiplier="3.2"> 2.0 kg</label>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>3. Message on Cake Board</label>
-            <input type="text" id="buildMessage" class="custom-input" placeholder="e.g. Happy Birthday Rubani!" maxlength="35">
-          </div>
-
-          <div class="builder-summary">
-            <div>
-              <span>Estimated Price:</span>
-              <strong id="customTotalPrice">₹1,200</strong>
-            </div>
-            <button type="button" id="addCustomToCartBtn" class="btn btn-primary">Add Custom Bake to Cart</button>
-          </div>
-        </form>
+  <main>
+    <section class="hero">
+      <div class="hero-copy reveal">
+        <div class="eyebrow"><span></span> Baked fresh in Delhi</div>
+        <h1>Little cakes.<br><i>Big feelings.</i></h1>
+        <p>Handmade celebration cakes, brownies and cheesecakes — made in small batches, finished with a whole lot of care.</p>
+        <div class="hero-actions"><a class="btn primary" href="#menu">Explore the bakes <span>↗</span></a><button class="btn ghost" id="heroCustom">Make it custom <span>✦</span></button></div>
+        <div class="hero-notes"><span>01 · Homemade</span><span>02 · Made to order</span><span>03 · Delhi NCR</span></div>
       </div>
+      <div class="hero-visual reveal">
+        <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+        <div class="hero-photo-wrap"><img id="heroPhoto" alt="A handmade cake from Ms. Lil Baker"></div>
+        <div class="floating-note note-top"><strong>made with ♡</strong><span>one order at a time</span></div>
+        <div class="floating-note note-bottom"><span>Today's mood</span><strong>something sweet.</strong></div>
+      </div>
+    </section>
 
-      <!-- Live Preview Render Box -->
-      <div class="customizer-preview-box">
-        <div class="cake-preview-3d">
-          <div class="cake-tier tier-top" id="previewTierTop"></div>
-          <div class="cake-tier tier-base" id="previewTierBase"></div>
-          <div class="cake-board">
-            <span id="previewMessageText">Happy Birthday!</span>
+    <section class="marquee" aria-label="Bakery highlights"><div>CAKES <b>✦</b> BROWNIES <b>✦</b> CHEESECAKES <b>✦</b> CUSTOM BAKES <b>✦</b> GIFTING <b>✦</b> CELEBRATIONS <b>✦</b></div></section>
+
+    <section class="section menu" id="menu">
+      <div class="section-top reveal"><div><div class="eyebrow">The sweet menu</div><h2>Pick your <i>favourite.</i></h2></div><p>Tap a bake for the details.<br>Build your basket as you go.</p></div>
+      <div class="menu-toolbar reveal"><div class="filters" id="categoryTabs"><button class="active" data-cat="all">Everything</button><button data-cat="Cakes">Cakes</button><button data-cat="Brownies">Brownies</button><button data-cat="Cheesecakes">Cheesecakes</button><button data-cat="Cupcakes">Cupcakes</button></div><label class="search"><span>⌕</span><input id="searchInput" placeholder="Find a bake..."></label></div>
+      <div class="product-grid" id="productGrid"><div class="loading"><span></span><span></span><span></span></div></div>
+    </section>
+
+    <section class="studio section" id="studio">
+      <div class="studio-card reveal">
+        <div class="studio-copy"><div class="eyebrow">✦ Custom Cake Studio</div><h2>Make something<br><i>only yours.</i></h2><p>Choose a flavour, size and message. The little preview changes as you build.</p>
+          <div class="builder">
+            <label>Flavour<select id="buildFlavor"><option value="Belgian Chocolate Truffle" data-price="1200">Belgian Chocolate Truffle</option><option value="Red Velvet" data-price="1100">Classic Red Velvet</option><option value="Biscoff" data-price="1350">Lotus Biscoff Crunch</option><option value="Strawberry Vanilla" data-price="1250">Strawberry Vanilla</option></select></label>
+            <div><span class="label">Size</span><div class="size-row"><label><input type="radio" name="buildSize" value="0.5 kg" data-multiplier="1" checked><b>0.5 kg</b></label><label><input type="radio" name="buildSize" value="1 kg" data-multiplier="1.8"><b>1 kg</b></label><label><input type="radio" name="buildSize" value="2 kg" data-multiplier="3.2"><b>2 kg</b></label></div></div>
+            <label>Message on cake<input id="buildMessage" maxlength="35" placeholder="Happy Birthday!"></label>
+            <div class="builder-bottom"><div><small>estimated from</small><strong id="customTotalPrice">₹1,200</strong></div><button class="btn primary" id="addCustomToCartBtn">Add to bag +</button></div>
           </div>
         </div>
+        <div class="preview"><div class="preview-label">LIVE PREVIEW</div><div class="cake-art"><div class="tier top"></div><div class="tier base"></div><div class="icing"></div><div class="board"><span id="previewMessageText">Happy Birthday!</span></div></div><div class="preview-caption" id="previewFlavor">Belgian Chocolate Truffle · 0.5 kg</div></div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Slide-over Cart Drawer -->
-  <div class="cart-overlay" id="cartOverlay"></div>
-  <aside class="cart-drawer" id="cartDrawer">
-    <div class="cart-header">
-      <h3>Your Bakery Basket</h3>
-      <button class="cart-close" id="closeCartBtn">&times;</button>
-    </div>
-    <div class="cart-items" id="cartItemsContainer">
-      <!-- Items dynamically populated -->
-    </div>
-    <div class="cart-footer">
-      <div class="cart-total">
-        <span>Subtotal</span>
-        <strong id="cartSubtotal">₹0</strong>
-      </div>
-      <button class="btn btn-primary btn-block" id="whatsappCheckoutBtn">
-        <i class="fa-brands fa-whatsapp"></i> Checkout via WhatsApp
-      </button>
-    </div>
-  </aside>
+    <section class="story section" id="story">
+      <div class="story-photo reveal"><img id="storyPhoto" alt="Ms. Lil Baker cake detail"></div>
+      <div class="story-copy reveal"><div class="eyebrow">A little about Ms. Lil Baker</div><h2>From a home kitchen<br>to <i>your celebration.</i></h2><p>Every order is made with attention to the little details — from everyday cravings to birthdays, gifting and the moments that deserve cake.</p><div class="pill-row"><span>Freshly baked</span><span>Homemade</span><span>Made to order</span></div><a class="text-link" href="#menu">See what's baking <span>→</span></a></div>
+    </section>
 
-  <!-- Scripts -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <section class="final-cta reveal"><div class="cta-spark">✦</div><div class="eyebrow">Have a cake idea?</div><h2>Tell us. We'll make it <i>sweet.</i></h2><p>Custom flavours, designs, sizes and celebration cakes welcome.</p><button class="btn dark" id="ctaCustom">Start a custom request <span>→</span></button></section>
+  </main>
+
+  <footer><div><a class="brand" href="#top"><span>Ms. Lil</span> Baker<small>HOME BAKERY · DELHI</small></a></div><div>Made for sweet moments ♡ · © 2026</div></footer>
+
+  <div class="overlay" id="cartOverlay"></div><aside class="drawer" id="cartDrawer"><div class="drawer-head"><div><div class="eyebrow">Your basket</div><h3>Good choices.</h3></div><button id="closeCart">×</button></div><div id="cartItemsContainer" class="drawer-items"></div><div class="drawer-foot"><div><span>Subtotal</span><strong id="cartSubtotal">₹0</strong></div><button class="btn primary wide" id="whatsappCheckoutBtn">Checkout on WhatsApp ↗</button><small>We'll confirm availability and delivery details with you.</small></div></aside>
+
+  <div class="product-modal" id="productModal" aria-hidden="true"><div class="product-modal-card"><button class="modal-close" id="closeProduct">×</button><div id="productModalContent"></div></div></div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
+  <script src="photo-chocolate-hazelnut-cake.js"></script>
+  <script src="photo-berry-cheesecake.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
