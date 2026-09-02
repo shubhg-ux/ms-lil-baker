@@ -6,20 +6,18 @@ let activeCat = 'all';
 let query = '';
 const WA = '919876543210';
 
-// Image system: use real repo assets when they exist, with the existing embedded
-// images as a fallback. This keeps GitHub Pages from depending on Base64 files.
+// Image system: prefer the existing embedded photos until matching repo assets exist.
+// Once a real file is present in /images, it can be used by removing the embedded fallback.
 const PHOTO_PATHS = {
   'chocolate-hazelnut-cake': 'images/chocolate-hazelnut-cake.jpg',
   'berry-cheesecake': 'images/berry-cheesecake.jpg'
 };
 const embeddedPhoto = key => (window.MSB_PHOTOS && window.MSB_PHOTOS[key]) || '';
-const photo = key => PHOTO_PATHS[key] || embeddedPhoto(key) || '';
+const photo = key => embeddedPhoto(key) || PHOTO_PATHS[key] || '';
 const fallbackPhoto = key => embeddedPhoto(key) || '';
 const money = n => `₹${Number(n || 0).toLocaleString('en-IN')}`;
 const esc = value => { const d=document.createElement('div'); d.textContent=value ?? ''; return d.innerHTML; };
 
-// If a normal image file is missing, swap that individual image to its embedded
-// fallback instead of leaving a broken-image icon on the page.
 function attachImageFallback(img, key){
   if(!img) return;
   img.addEventListener('error',()=>{
