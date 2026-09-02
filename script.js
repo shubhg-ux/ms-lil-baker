@@ -6,10 +6,27 @@ let activeCat = 'all';
 let query = '';
 const WA = '919876543210';
 
-const photo = key => (window.MSB_PHOTOS && window.MSB_PHOTOS[key]) || '';
+// Image system: use real repo assets when they exist, with the existing embedded
+// images as a fallback. This keeps GitHub Pages from depending on Base64 files.
+const PHOTO_PATHS = {
+  'chocolate-hazelnut-cake': 'images/chocolate-hazelnut-cake.jpg',
+  'berry-cheesecake': 'images/berry-cheesecake.jpg'
+};
+const embeddedPhoto = key => (window.MSB_PHOTOS && window.MSB_PHOTOS[key]) || '';
+const photo = key => PHOTO_PATHS[key] || embeddedPhoto(key) || '';
+const fallbackPhoto = key => embeddedPhoto(key) || '';
 const money = n => `₹${Number(n || 0).toLocaleString('en-IN')}`;
 const esc = value => { const d=document.createElement('div'); d.textContent=value ?? ''; return d.innerHTML; };
 
+// If a normal image file is missing, swap that individual image to its embedded
+// fallback instead of leaving a broken-image icon on the page.
+function attachImageFallback(img, key){
+  if(!img) return;
+  img.addEventListener('error',()=>{
+    const fallback=fallbackPhoto(key);
+    if(fallback && img.src !== fallback){ img.src=fallback; }
+  },{once:true});
+}
 function saveCart(){ localStorage.setItem('mlb-cart', JSON.stringify(cart)); }
 function syncCart(){
   const count=document.getElementById('cartCount');
@@ -30,10 +47,10 @@ function closeCart(){ document.getElementById('cartDrawer')?.classList.remove('a
 function getFallbackProducts(){
   const a=photo('chocolate-hazelnut-cake'), b=photo('berry-cheesecake');
   return [
-    {id:'sample-1',name:'Chocolate Hazelnut Cake',description:'Rich chocolate cake finished with a little crunch.',category:'Cakes',price:900,photo_url:a},
-    {id:'sample-2',name:'Berry Cheesecake',description:'Creamy cheesecake with a bright berry finish.',category:'Cheesecakes',price:950,photo_url:b},
-    {id:'sample-3',name:'The Baker’s Special',description:'A small-batch surprise from the kitchen.',category:'Cakes',price:1100,photo_url:a},
-    {id:'sample-4',name:'Something Berry Sweet',description:'Soft, creamy and made for celebrations.',category:'Cheesecakes',price:1050,photo_url:b}
+    {id:'sample-1',name:'Chocolate Hazelnut Cake',description:'Rich chocolate cake finished with a little crunch.',category:'Cakes',price:900,photo_url:a,photo_key:'chocolate-hazelnut-cake'},
+    {id:'sample-2',name:'Berry Cheesecake',description:'Creamy cheesecake with a bright berry finish.',category:'Cheesecakes',price:950,photo_url:b,photo_key:'berry-cheesecake'},
+    {id:'sample-3',name:'The Baker’s Special',description:'A small-batch surprise from the kitchen.',category:'Cakes',price:1100,photo_url:a,photo_key:'chocolate-hazelnut-cake'},
+    {id:'sample-4',name:'Something Berry Sweet',description:'Soft, creamy and made for celebrations.',category:'Cheesecakes',price:1050,photo_url:b,photo_key:'berry-cheesecake'}
   ];
 }
 function renderProducts(){
@@ -42,22 +59,26 @@ function renderProducts(){
   if(query) list=list.filter(p=>`${p.name||''} ${p.description||''} ${p.category||''}`.toLowerCase().includes(query.toLowerCase()));
   if(!list.length){ grid.innerHTML='<div class="empty-cart"><h4>Nothing here yet.</h4><p>Try another category or search.</p></div>'; return; }
   grid.innerHTML=list.map((p,i)=>{
-    const src=p.photo_url || (i%2===0?photo('chocolate-hazelnut-cake'):photo('berry-cheesecake'));
-    return `<article class="product-card" data-id="${esc(p.id)}"><div class="product-thumb">${src?`<img src="${esc(src)}" alt="${esc(p.name||'Fresh bake')}" loading="lazy">`:'<div class="photo-fallback">✦</div>'}<span class="product-tag">${esc(p.category||'Fresh bake')}</span><span class="view-pill">View ↗</span></div><div class="product-details"><h3 class="product-title">${esc(p.name||'Fresh bake')}</h3><p class="product-desc">${esc(p.description||'Handmade and freshly prepared to order.')}</p><div class="product-footer"><span class="product-price">${money(p.price)}</span><button class="add-btn" data-add="${esc(p.id)}">Add +</button></div></div></article>`;
+    const key=p.photo_key || (i%2===0?'chocolate-hazelnut-cake':'berry-cheesecake');
+    const src=p.photo_url || photo(key);
+    return `<article class="product-card" data-id="${esc(p.id)}"><div class="product-thumb">${src?`<img src="${esc(src)}" data-photo-key="${esc(key)}" alt="${esc(p.name||'Fresh bake')}" loading="lazy">`:'<div class="photo-fallback">✦</div>'}<span class="product-tag">${esc(p.category||'Fresh bake')}</span><span class="view-pill">View ↗</span></div><div class="product-details"><h3 class="product-title">${esc(p.name||'Fresh bake')}</h3><p class="product-desc">${esc(p.description||'Handmade and freshly prepared to order.')}</p><div class="product-footer"><span class="product-price">${money(p.price)}</span><button class="add-btn" data-add="${esc(p.id)}">Add +</button></div></div></article>`;
   }).join('');
+  grid.querySelectorAll('img[data-photo-key]').forEach(img=>attachImageFallback(img,img.dataset.photoKey));
 }
 async function fetchProducts(){
   if(!sb){ allProducts=getFallbackProducts(); renderProducts(); return; }
   const {data,error}=await sb.from('products').select('*').eq('is_available',true).order('created_at',{ascending:false});
   if(error){ console.warn('Menu fetch failed; showing preview catalogue.',error); allProducts=getFallbackProducts(); renderProducts(); return; }
-  allProducts=data&&data.length?data:getFallbackProducts(); renderProducts();
+  allProducts=data&&data.length?data.map(p=>({...p,photo_key:p.photo_key||''})):getFallbackProducts(); renderProducts();
 }
 function productById(id){ return allProducts.find(p=>String(p.id)===String(id)); }
 function addProduct(id){ const p=productById(id); if(!p) return; cart.push({id:p.id,name:p.name||'Fresh bake',price:Number(p.price||0),details:p.category||''}); openCart(); }
 function openProduct(p){
-  const src=p.photo_url || photo('chocolate-hazelnut-cake');
+  const key=p.photo_key || 'chocolate-hazelnut-cake';
+  const src=p.photo_url || photo(key);
   const modal=document.getElementById('productModal'); const content=document.getElementById('productModalContent'); if(!modal||!content)return;
-  content.innerHTML=`<div class="modal-photo">${src?`<img src="${esc(src)}" alt="${esc(p.name)}">`:''}</div><div class="modal-info"><div class="eyebrow">${esc(p.category||'Fresh bake')}</div><h2>${esc(p.name||'Fresh bake')}</h2><p>${esc(p.description||'Handmade and freshly prepared to order.')}</p><div class="modal-price">${money(p.price)}</div><button class="btn primary" data-modal-add="${esc(p.id)}">Add to bag +</button></div>`;
+  content.innerHTML=`<div class="modal-photo">${src?`<img src="${esc(src)}" data-modal-photo-key="${esc(key)}" alt="${esc(p.name)}">`:''}</div><div class="modal-info"><div class="eyebrow">${esc(p.category||'Fresh bake')}</div><h2>${esc(p.name||'Fresh bake')}</h2><p>${esc(p.description||'Handmade and freshly prepared to order.')}</p><div class="modal-price">${money(p.price)}</div><button class="btn primary" data-modal-add="${esc(p.id)}">Add to bag +</button></div>`;
+  const modalImg=content.querySelector('img[data-modal-photo-key]'); if(modalImg)attachImageFallback(modalImg,key);
   modal.classList.add('active'); modal.setAttribute('aria-hidden','false');
 }
 function closeProduct(){ document.getElementById('productModal')?.classList.remove('active'); document.getElementById('productModal')?.setAttribute('aria-hidden','true'); }
@@ -71,9 +92,13 @@ function initBuilder(){
 function customRequest(){ document.getElementById('studio')?.scrollIntoView({behavior:'smooth'}); setTimeout(()=>document.getElementById('buildMessage')?.focus(),500); }
 function initGallery(){
   const a=photo('chocolate-hazelnut-cake'),b=photo('berry-cheesecake');
-  const hp=document.getElementById('heroPhoto'),sp=document.getElementById('storyPhoto'); if(hp&&a)hp.src=a; if(sp&&b)sp.src=b;
+  const hp=document.getElementById('heroPhoto'),sp=document.getElementById('storyPhoto');
+  if(hp&&a){hp.src=a;attachImageFallback(hp,'chocolate-hazelnut-cake');}
+  if(sp&&b){sp.src=b;attachImageFallback(sp,'berry-cheesecake');}
   const rail=document.getElementById('photoRail'); if(!rail)return;
-  const photos=[a,b,a,b,a,b]; rail.innerHTML=photos.map((src,i)=>src?`<button class="gallery-tile" data-lightbox="${i}" aria-label="Open cake photo ${i+1}"><img src="${src}" alt="Cake photo ${i+1}" loading="lazy"><span>sweet detail ${String(i+1).padStart(2,'0')}</span></button>`:'').join('');
+  const photos=[['chocolate-hazelnut-cake',a],['berry-cheesecake',b],['chocolate-hazelnut-cake',a],['berry-cheesecake',b],['chocolate-hazelnut-cake',a],['berry-cheesecake',b]];
+  rail.innerHTML=photos.map(([key,src],i)=>src?`<button class="gallery-tile" data-lightbox="${i}" data-photo-key="${key}" aria-label="Open cake photo ${i+1}"><img src="${esc(src)}" data-gallery-photo-key="${key}" alt="Cake photo ${i+1}" loading="lazy"><span>sweet detail ${String(i+1).padStart(2,'0')}</span></button>`:'').join('');
+  rail.querySelectorAll('img[data-gallery-photo-key]').forEach(img=>attachImageFallback(img,img.dataset.galleryPhotoKey));
 }
 function openLightbox(src){ const lb=document.getElementById('lightbox'); if(!lb)return; document.getElementById('lightboxImage').src=src; lb.classList.add('active'); }
 function closeLightbox(){document.getElementById('lightbox')?.classList.remove('active');}
