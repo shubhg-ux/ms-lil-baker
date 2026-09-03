@@ -1,6 +1,6 @@
 # Ms. Lil Baker
 
-Website for Ms. Lil Baker, Delhi home bakery.
+Website for Rubani Kaur Arora aka Ms. Lil Baker, Delhi home bakery.
 
 ## Project
 Customer-facing bakery website with menu, cart, checkout/order request flow, custom-order form, and an admin dashboard prototype.
