@@ -87,7 +87,7 @@ async function fetchSiteSettings(){
   const {data, error} = await sb.from('site_settings').select('*').eq('id', 1).single();
   if(error){ console.warn('Site settings fetch failed; using built-in defaults.', error); return; }
   site = {...site, ...data};
-  if(!Array.isArray(site.gallery_urls) || !site.gallery_urls.length) site.gallery_urls = [...site.gallery_urls];
+  if(!Array.isArray(site.gallery_urls) || !site.gallery_urls.length) site.gallery_urls = Array.from({length:18}, (_, i) => `images/cake-${String(i + 1).padStart(2, '0')}.jpg`);
 }
 
 function productById(id){ return allProducts.find(p => String(p.id) === String(id)); }
@@ -106,16 +106,78 @@ function openProduct(product){
 }
 function closeProduct(){ const modal = document.getElementById('productModal'); modal?.classList.remove('active'); modal?.setAttribute('aria-hidden', 'true'); }
 
-function initBuilder(){
-  const flavor = document.getElementById('buildFlavor'); const message = document.getElementById('buildMessage'); if(!flavor) return;
-  const price = document.getElementById('customTotalPrice'); const preview = document.getElementById('previewMessageText'); const caption = document.getElementById('previewFlavor');
-  const update = () => { const option = flavor.options[flavor.selectedIndex]; const size = document.querySelector('input[name="buildSize"]:checked'); const total = Math.round(Number(option.dataset.price || 0) * Number(size?.dataset.multiplier || 1)); if(price) price.textContent = money(total); if(preview) preview.textContent = message.value.trim() || 'Happy Birthday!'; if(caption) caption.textContent = `${option.value} · ${size?.value || '0.5 kg'}`; };
-  flavor.addEventListener('change', update); message?.addEventListener('input', update); document.querySelectorAll('input[name="buildSize"]').forEach(input => input.addEventListener('change', update));
-  document.getElementById('addCustomToCartBtn')?.addEventListener('click', () => { const option = flavor.options[flavor.selectedIndex]; const size = document.querySelector('input[name="buildSize"]:checked'); const note = message.value.trim(); cart.push({id:`custom-${Date.now()}`, name:`Custom Cake · ${option.value}`, price:Math.round(Number(option.dataset.price || 0) * Number(size?.dataset.multiplier || 1)), details:`${size?.value || '0.5 kg'}${note ? ` · “${note}”` : ''}`}); openCart(); });
-  update();
-}
+function initQuiz(){
+  const quiz = document.getElementById('bakeQuiz');
+  if(!quiz) return;
+  const steps = [...quiz.querySelectorAll('.quiz-step')];
+  const stepLabel = document.getElementById('quizStepLabel');
+  const progress = document.getElementById('quizProgressBar');
+  const result = document.getElementById('quizResult');
+  let step = 0;
+  const answers = {};
 
-function customRequest(){ document.getElementById('studio')?.scrollIntoView({behavior:'smooth', block:'start'}); setTimeout(() => document.getElementById('buildMessage')?.focus(), 450); }
+  const showStep = index => {
+    steps.forEach((item, i) => item.classList.toggle('active', i === index));
+    if(stepLabel) stepLabel.textContent = `${String(index + 1).padStart(2,'0')} / 03`;
+    if(progress) progress.style.width = `${((index + 1) / steps.length) * 100}%`;
+  };
+
+  const scoreProduct = product => {
+    const text = `${product.name || ''} ${product.description || ''} ${product.category || ''}`.toLowerCase();
+    let score = 0;
+    const category = String(product.category || '').toLowerCase();
+    if(answers.occasion === 'celebration') score += category === 'cakes' ? 4 : 2;
+    if(answers.occasion === 'gifting') score += category === 'cheesecakes' || category === 'cakes' ? 3 : 2;
+    if(answers.occasion === 'craving') score += category === 'brownies' || category === 'cupcakes' ? 4 : 2;
+    if(answers.flavour === 'chocolate' && /chocolate|cocoa|mud|truffle|brownie|hazelnut|biscoff/.test(text)) score += 5;
+    if(answers.flavour === 'fruit' && /berry|strawberr|fruit|mango|lemon|raspberr|blueberr/.test(text)) score += 5;
+    if(answers.flavour === 'anything') score += 2;
+    if(answers.sweetness === 'light') score += /cheesecake|berry|fruit|lemon/.test(text) ? 3 : 1;
+    if(answers.sweetness === 'classic') score += 2;
+    if(answers.sweetness === 'indulgent') score += /chocolate|mud|truffle|brownie|biscoff|hazelnut/.test(text) ? 4 : 2;
+    return score;
+  };
+
+  const showResult = () => {
+    const pool = allProducts.length ? allProducts : fallbackProducts();
+    const recommended = [...pool].sort((a,b) => scoreProduct(b) - scoreProduct(a))[0];
+    const reason = answers.flavour === 'chocolate'
+      ? 'You were leaning rich and chocolatey, so this felt like the natural pick.'
+      : answers.flavour === 'fruit'
+        ? 'You were after something fresher and brighter, so this felt like a lovely match.'
+        : answers.occasion === 'craving'
+          ? 'You said no reason needed — we picked a little treat for the moment.'
+          : 'A lovely all-rounder for the kind of sweet moment you described.';
+    result.innerHTML = `<div class="quiz-result-inner"><span class="quiz-kicker">Your sweet match</span><div class="quiz-result-card"><img src="${esc(recommended.photo_url || site.gallery_urls[0])}" alt="${esc(recommended.name || 'Recommended bake')}"><div><small>WE THINK YOU'LL LOVE</small><h3>${esc(recommended.name || 'Fresh bake')}</h3><p>${esc(recommended.description || reason)}</p><strong>${money(recommended.price)}</strong></div></div><p class="quiz-reason">${esc(reason)}</p><div class="quiz-result-actions"><button class="btn primary" type="button" data-quiz-add="${esc(recommended.id)}">Add to bag +</button><button class="quiz-reset" type="button" id="quizReset">Take it again</button></div></div>`;
+    result.classList.add('show');
+    steps.forEach(item => item.classList.remove('active'));
+    if(stepLabel) stepLabel.textContent = 'DONE';
+    if(progress) progress.style.width = '100%';
+  };
+
+  quiz.addEventListener('click', event => {
+    const option = event.target.closest('.quiz-options button');
+    if(option){
+      const key = step === 0 ? 'occasion' : step === 1 ? 'flavour' : 'sweetness';
+      answers[key] = option.dataset.answer;
+      option.parentElement.querySelectorAll('button').forEach(btn => btn.classList.remove('selected'));
+      option.classList.add('selected');
+      if(step < steps.length - 1){ step += 1; showStep(step); }
+      else showResult();
+      return;
+    }
+    const add = event.target.closest('[data-quiz-add]');
+    if(add){ addProduct(add.dataset.quizAdd); return; }
+    if(event.target.closest('#quizReset')){
+      step = 0;
+      Object.keys(answers).forEach(key => delete answers[key]);
+      result.classList.remove('show'); result.innerHTML = '';
+      quiz.querySelectorAll('.quiz-options button').forEach(btn => btn.classList.remove('selected'));
+      showStep(0);
+    }
+  });
+  showStep(0);
+}
 
 function initGallery(){
   const hero = document.getElementById('heroPhoto'); const story = document.getElementById('storyPhoto');
@@ -131,7 +193,6 @@ function applySiteCopy(){
   set('heroEyebrowText', site.hero_eyebrow); set('heroTitleText', site.hero_title); set('heroDescriptionText', site.hero_description);
   set('galleryEyebrowText', site.gallery_eyebrow); set('galleryTitleText', site.gallery_title); set('galleryDescriptionText', site.gallery_description);
   set('storyEyebrowText', site.story_eyebrow); set('storyTitleText', site.story_title); set('storyDescriptionText', site.story_description);
-  document.title = `Ms. Lil Baker | Rubani Arora | Homemade with Love`;
 }
 
 function openLightbox(src){ const box = document.getElementById('lightbox'); const image = document.getElementById('lightboxImage'); if(!box || !image) return; image.src = src; box.classList.add('active'); }
@@ -149,14 +210,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   await fetchSiteSettings();
   applySiteCopy();
   initGallery();
-  initBuilder();
   renderCart();
   fetchProducts();
+  initQuiz();
   document.getElementById('categoryTabs')?.addEventListener('click', event => { const button = event.target.closest('button'); if(!button) return; document.querySelectorAll('.filters button').forEach(item => item.classList.remove('active')); button.classList.add('active'); activeCat = button.dataset.cat; renderProducts(); });
   document.getElementById('searchInput')?.addEventListener('input', event => { query = event.target.value; renderProducts(); });
   document.getElementById('cartBtn')?.addEventListener('click', openCart); document.getElementById('closeCart')?.addEventListener('click', closeCart); document.getElementById('cartOverlay')?.addEventListener('click', closeCart);
   document.getElementById('closeProduct')?.addEventListener('click', closeProduct); document.getElementById('productModal')?.addEventListener('click', event => { if(event.target.id === 'productModal') closeProduct(); });
-  document.getElementById('heroCustom')?.addEventListener('click', customRequest); document.getElementById('ctaCustom')?.addEventListener('click', customRequest);
   document.getElementById('closeLightbox')?.addEventListener('click', closeLightbox); document.getElementById('lightbox')?.addEventListener('click', event => { if(event.target.id === 'lightbox') closeLightbox(); });
   document.getElementById('whatsappCheckoutBtn')?.addEventListener('click', () => {
     if(!cart.length) return;
