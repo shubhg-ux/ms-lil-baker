@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin — Website · Ms. Lil Baker</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="admin-products.css">
+  <style>
+    .content-shell{max-width:1320px;margin:0 auto;padding:34px clamp(16px,4vw,48px) 70px}
+    .content-head{display:flex;justify-content:space-between;gap:24px;align-items:flex-end;margin-bottom:28px}
+    .content-head h1{margin:4px 0 8px;font-family:var(--font-display,'Playfair Display',serif);font-size:clamp(2.1rem,4vw,3.4rem);color:var(--ink)}
+    .content-head p{margin:0;color:var(--ink-soft);max-width:650px}
+    .content-actions{display:flex;gap:10px;flex-wrap:wrap}
+    .content-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);gap:22px;align-items:start}
+    .content-panel{background:rgba(255,253,251,.92);border:1px solid var(--line);border-radius:24px;padding:24px;box-shadow:0 12px 35px rgba(59,38,32,.06)}
+    .content-panel h2{margin:0 0 5px;font-family:var(--font-display,'Playfair Display',serif);font-size:1.55rem;color:var(--ink)}
+    .panel-note{margin:0 0 20px;color:var(--ink-soft);font-size:.86rem}
+    .copy-grid{display:grid;gap:14px}
+    .copy-grid .field{margin:0}
+    .copy-grid textarea{min-height:92px;resize:vertical}
+    .image-control{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+    .image-card{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#fff}
+    .image-card img{display:block;width:100%;height:190px;object-fit:cover}
+    .image-card-body{padding:14px}
+    .image-card-body strong{display:block;margin-bottom:8px;color:var(--ink)}
+    .image-card-body p{font-size:.76rem;color:var(--ink-soft);margin:0 0 10px;word-break:break-all}
+    .gallery-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:22px 0 14px}
+    .gallery-toolbar strong{font-size:.92rem;color:var(--ink)}
+    .upload-zone{border:1.5px dashed #d9b8aa;border-radius:18px;padding:18px;text-align:center;background:#fffaf7}
+    .upload-zone input{max-width:100%}
+    .gallery-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    .gallery-item{position:relative;border:1px solid var(--line);border-radius:17px;overflow:hidden;background:#fff}
+    .gallery-item img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover}
+    .gallery-item-body{padding:9px;display:grid;gap:7px}
+    .gallery-index{font:600 .68rem var(--font-tag,monospace);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+    .gallery-buttons{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+    .mini-btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 6px;font-size:.7rem;font-weight:700;color:var(--ink);cursor:pointer}
+    .mini-btn:hover{border-color:var(--berry);background:var(--ivory)}
+    .mini-btn.danger{color:#9b3047}
+    .save-bar{position:sticky;bottom:14px;margin-top:20px;background:rgba(255,253,251,.96);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:17px;padding:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 12px 30px rgba(59,38,32,.1)}
+    #contentMsg{font-size:.8rem;color:var(--ink-soft)}
+    @media(max-width:900px){.content-grid{grid-template-columns:1fr}.content-head{align-items:flex-start;flex-direction:column}.gallery-list{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:560px){.image-control{grid-template-columns:1fr}.gallery-list{grid-template-columns:repeat(2,1fr)}.content-panel{padding:18px}.content-shell{padding-left:13px;padding-right:13px}.save-bar{align-items:stretch;flex-direction:column}.save-bar .btn{width:100%;justify-content:center}}
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html"><span class="brand-seal">MLB</span><span><span class="brand-name">Ms. Lil Baker</span><span class="brand-sub">Website Control</span></span></a>
+    <div class="admin-header-actions">
+      <a class="btn btn-secondary" href="admin.html">Orders</a>
+      <a class="btn btn-secondary" href="admin-products.html">Products</a>
+      <a class="btn btn-secondary" href="index.html">Live Site</a>
+      <button id="logoutBtn" class="btn btn-primary" type="button">Log out</button>
+    </div>
+  </div>
+</header>
+
+<main class="content-shell" id="adminView">
+  <div class="content-head">
+    <div>
+      <div class="section-eyebrow">Website Control</div>
+      <h1>Make the site yours.</h1>
+      <p>Edit the homepage copy, choose the hero and story photos, and manage the gallery without touching the code.</p>
+    </div>
+    <div class="content-actions"><a class="btn btn-secondary" href="index.html">Preview site ↗</a></div>
+  </div>
+
+  <div class="content-grid">
+    <section class="content-panel">
+      <h2>Homepage copy</h2>
+      <p class="panel-note">These fields control the main customer-facing words on the homepage.</p>
+      <div class="copy-grid">
+        <div class="field"><label for="heroEyebrow">Hero eyebrow</label><input id="heroEyebrow" type="text"></div>
+        <div class="field"><label for="heroTitle">Hero headline</label><input id="heroTitle" type="text"></div>
+        <div class="field"><label for="heroDescription">Hero description</label><textarea id="heroDescription"></textarea></div>
+        <div class="field"><label for="galleryEyebrow">Gallery eyebrow</label><input id="galleryEyebrow" type="text"></div>
+        <div class="field"><label for="galleryTitle">Gallery headline</label><input id="galleryTitle" type="text"></div>
+        <div class="field"><label for="galleryDescription">Gallery description</label><textarea id="galleryDescription"></textarea></div>
+        <div class="field"><label for="storyEyebrow">Story eyebrow</label><input id="storyEyebrow" type="text"></div>
+        <div class="field"><label for="storyTitle">Story headline</label><input id="storyTitle" type="text"></div>
+        <div class="field"><label for="storyDescription">Story description</label><textarea id="storyDescription"></textarea></div>
+        <div class="field"><label for="whatsappNumber">WhatsApp number</label><input id="whatsappNumber" type="tel" inputmode="numeric" placeholder="919876543210"><small>Country code + number, no + or spaces.</small></div>
+      </div>
+      <div class="save-bar"><span id="contentMsg">Changes are saved to the website settings.</span><button id="saveContent" class="btn btn-primary" type="button">Save website changes</button></div>
+    </section>
+
+    <section class="content-panel">
+      <h2>Hero & story images</h2>
+      <p class="panel-note">Pick any gallery image as the hero or story image. Uploading a new image adds it to the gallery.</p>
+      <div class="image-control">
+        <div class="image-card"><img id="heroPreview" alt="Hero preview"><div class="image-card-body"><strong>Hero image</strong><p id="heroUrl"></p><button class="mini-btn" data-jump="hero">Manage in gallery</button></div></div>
+        <div class="image-card"><img id="storyPreview" alt="Story preview"><div class="image-card-body"><strong>Story image</strong><p id="storyUrl"></p><button class="mini-btn" data-jump="story">Manage in gallery</button></div></div>
+      </div>
+      <div class="gallery-toolbar"><strong>Gallery</strong><span id="galleryCount" class="small"></span></div>
+      <div class="upload-zone"><label for="galleryUpload"><strong>Upload new gallery photos</strong><br><span class="small">JPG, PNG or WebP · multiple files allowed</span></label><br><input id="galleryUpload" type="file" accept="image/jpeg,image/png,image/webp" multiple></div>
+      <div id="galleryList" class="gallery-list" style="margin-top:14px"></div>
+    </section>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="admin-content.js"></script>
+</body>
+</html>
