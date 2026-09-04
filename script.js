@@ -8,6 +8,7 @@ let query = '';
 let site = {
   hero_url: 'images/cake-01.jpg', story_url: 'images/cake-02.jpg',
   gallery_urls: Array.from({length:18}, (_, i) => `images/cake-${String(i + 1).padStart(2, '0')}.jpg`),
+  gallery_names: Array.from({length:18}, (_, i) => `Cake ${String(i + 1).padStart(2, '0')}`),
   hero_eyebrow: 'Baked fresh in Delhi', hero_title: 'Little cakes. Big feelings.',
   hero_description: 'Handmade celebration cakes, brownies and cheesecakes — made in small batches, finished with a whole lot of care.',
   gallery_eyebrow: 'A little visual sugar', gallery_title: 'Made to be stared at.',
@@ -63,6 +64,7 @@ async function fetchSiteSettings(){
   if(error){console.warn('Site settings fetch failed; using built-in defaults.',error);return;}
   site={...site,...data};
   if(!Array.isArray(site.gallery_urls)||!site.gallery_urls.length) site.gallery_urls=Array.from({length:18},(_,i)=>`images/cake-${String(i+1).padStart(2,'0')}.jpg`);
+  if(!Array.isArray(site.gallery_names)) site.gallery_names=site.gallery_urls.map((_,i)=>`Cake ${String(i+1).padStart(2,'0')}`);
 }
 function productById(id){return allProducts.find(p=>String(p.id)===String(id));}
 function addProduct(id){const product=productById(id);if(!product)return;cart.push({id:product.id,name:product.name||'Fresh bake',price:Number(product.price||0),details:product.category||''});openCart();}
@@ -107,7 +109,7 @@ function initQuiz(){
 }
 function initGallery(){
   const hero=document.getElementById('heroPhoto'),story=document.getElementById('storyPhoto');if(hero)hero.src=site.hero_url||site.gallery_urls[0]||'images/cake-01.jpg';if(story)story.src=site.story_url||site.gallery_urls[1]||site.gallery_urls[0]||'images/cake-02.jpg';
-  const rail=document.getElementById('photoRail');if(!rail)return;rail.innerHTML=site.gallery_urls.map((src,index)=>`<button class="gallery-tile" type="button" data-gallery-src="${esc(src)}" aria-label="Open cake photo ${index+1}"><img src="${esc(src)}" alt="Cake photo ${index+1}" loading="lazy"><span>sweet detail ${String(index+1).padStart(2,'0')}</span></button>`).join('');
+  const rail=document.getElementById('photoRail');if(!rail)return;rail.innerHTML=site.gallery_urls.map((src,index)=>{const name=site.gallery_names[index]||`Cake ${String(index+1).padStart(2,'0')}`;return `<button class="gallery-tile" type="button" data-gallery-src="${esc(src)}" aria-label="Open ${esc(name)}"><img src="${esc(src)}" alt="${esc(name)}" loading="lazy"><span>${esc(name)}</span></button>`;}).join('');
 }
 function applySiteCopy(){const set=(id,value)=>{const el=document.getElementById(id);if(el&&value)el.textContent=value;};set('heroEyebrowText',site.hero_eyebrow);set('heroTitleText',site.hero_title);set('heroDescriptionText',site.hero_description);set('galleryEyebrowText',site.gallery_eyebrow);set('galleryTitleText',site.gallery_title);set('galleryDescriptionText',site.gallery_description);set('storyEyebrowText',site.story_eyebrow);set('storyTitleText',site.story_title);set('storyDescriptionText',site.story_description);}
 function openLightbox(src){const box=document.getElementById('lightbox'),image=document.getElementById('lightboxImage');if(!box||!image)return;image.src=src;box.classList.add('active');}
