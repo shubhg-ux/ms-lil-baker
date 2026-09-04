@@ -34,9 +34,12 @@
     .gallery-item img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover}
     .gallery-item-body{padding:9px;display:grid;gap:7px}
     .gallery-index{font:600 .68rem var(--font-tag,monospace);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+    .gallery-name-input{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:9px;padding:8px 9px;background:#fff;color:var(--ink);font:600 .78rem inherit;outline:none}
+    .gallery-name-input:focus{border-color:var(--berry);box-shadow:0 0 0 3px rgba(122,48,69,.08)}
     .gallery-buttons{display:grid;grid-template-columns:1fr 1fr;gap:6px}
     .mini-btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 6px;font-size:.7rem;font-weight:700;color:var(--ink);cursor:pointer}
     .mini-btn:hover{border-color:var(--berry);background:var(--ivory)}
+    .mini-btn:disabled{opacity:.45;cursor:not-allowed}
     .mini-btn.danger{color:#9b3047}
     .save-bar{position:sticky;bottom:14px;margin-top:20px;background:rgba(255,253,251,.96);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:17px;padding:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 12px 30px rgba(59,38,32,.1)}
     #contentMsg{font-size:.8rem;color:var(--ink-soft)}
@@ -49,6 +52,7 @@
   <div class="wrap">
     <a class="brand" href="index.html"><span class="brand-seal">MLB</span><span><span class="brand-name">Ms. Lil Baker</span><span class="brand-sub">Website Control</span></span></a>
     <div class="admin-header-actions">
+      <a class="btn btn-secondary" href="admin-dashboard.html">Dashboard</a>
       <a class="btn btn-secondary" href="admin.html">Orders</a>
       <a class="btn btn-secondary" href="admin-products.html">Products</a>
       <a class="btn btn-secondary" href="index.html">Live Site</a>
@@ -95,6 +99,7 @@
       </div>
       <div class="gallery-toolbar"><strong>Gallery</strong><span id="galleryCount" class="small"></span></div>
       <div class="upload-zone"><label for="galleryUpload"><strong>Upload new gallery photos</strong><br><span class="small">JPG, PNG or WebP · multiple files allowed</span></label><br><input id="galleryUpload" type="file" accept="image/jpeg,image/png,image/webp" multiple></div>
+      <p class="panel-note" style="margin:12px 0 0">Give each photo a simple name below — for example <strong>Chocolate Birthday Cake</strong>. The name is saved with the image and is used on the live gallery for accessibility.</p>
       <div id="galleryList" class="gallery-list" style="margin-top:14px"></div>
     </section>
   </div>
