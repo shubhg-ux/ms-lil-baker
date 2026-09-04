@@ -21,11 +21,21 @@ const Checkout = (() => {
     button.disabled=true;button.textContent='Placing order…';
     const total=cart.reduce((sum,item)=>sum+Number(item.price||0),0);
     const items=cart.map(item=>({id:item.id,name:item.name,price:Number(item.price||0),details:item.details||'',qty:1}));
-    const payload={customer_name:name,phone,email:form.email.value.trim()||null,requested_date:form.date.value||null,delivery_address:form.address.value.trim()||null,notes:form.notes.value.trim()||null,items,total_amount:total,status:'new',source:'website'};
-    const {error}=await client.from('orders').insert(payload);
+    const {data,error}=await client.rpc('place_customer_order',{
+      p_customer_name:name,
+      p_phone:phone,
+      p_email:form.email.value.trim()||null,
+      p_requested_date:form.date.value||null,
+      p_delivery_address:form.address.value.trim()||null,
+      p_notes:form.notes.value.trim()||null,
+      p_items:items,
+      p_total_amount:total
+    });
     if(error){console.error(error);alert('We could not place the order. Please try again.');button.disabled=false;button.textContent='Place order';return;}
+    const order=data?.[0];
+    if(!order?.order_id || !order?.order_code){console.error('Unexpected order response',data);alert('The order was received, but we could not generate its customer ID. Please contact the bakery.');button.disabled=false;button.textContent='Place order';return;}
     localStorage.removeItem('mlb-cart'); if(window.syncCart)window.syncCart(); closeModal(); form.reset();
-    document.getElementById('confirmationCode').textContent='Order received · Admin notified';
+    document.getElementById('confirmationCode').textContent=order.order_code;
     const confirmation=document.getElementById('orderConfirmation');confirmation.classList.add('active');confirmation.setAttribute('aria-hidden','false');
     button.disabled=false;button.textContent='Place order';
   }
