@@ -15,7 +15,7 @@ let site = {
   gallery_description: 'Fresh bakes from the kitchen. A collection that keeps growing.',
   story_eyebrow: 'A little about Ms. Lil Baker', story_title: 'From a home kitchen to your celebration.',
   story_description: 'Every order is made with attention to the little details — from everyday cravings to birthdays, gifting and the moments that deserve cake.',
-  whatsapp_number: '919876543210'
+  whatsapp_number: '7838165803'
 };
 
 const money = value => `₹${Number(value || 0).toLocaleString('en-IN')}`;
