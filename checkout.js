@@ -22,10 +22,10 @@ const Checkout = (() => {
     const total=cart.reduce((sum,item)=>sum+Number(item.price||0),0);
     const items=cart.map(item=>({id:item.id,name:item.name,price:Number(item.price||0),details:item.details||'',qty:1}));
     const payload={customer_name:name,phone,email:form.email.value.trim()||null,requested_date:form.date.value||null,delivery_address:form.address.value.trim()||null,notes:form.notes.value.trim()||null,items,total_amount:total,status:'new',source:'website'};
-    const {data,error}=await client.from('orders').insert(payload).select('id,created_at').single();
+    const {error}=await client.from('orders').insert(payload);
     if(error){console.error(error);alert('We could not place the order. Please try again.');button.disabled=false;button.textContent='Place order';return;}
     localStorage.removeItem('mlb-cart'); if(window.syncCart)window.syncCart(); closeModal(); form.reset();
-    document.getElementById('confirmationCode').textContent=`MLB-${String(data.id).padStart(4,'0')}`;
+    document.getElementById('confirmationCode').textContent='Order received · Admin notified';
     const confirmation=document.getElementById('orderConfirmation');confirmation.classList.add('active');confirmation.setAttribute('aria-hidden','false');
     button.disabled=false;button.textContent='Place order';
   }
