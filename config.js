@@ -2,7 +2,7 @@
 // Used by both the admin panel (admin-products.js) and the customer site (script.js)
 
 const SUPABASE_URL = "https://dqedwfbowxevwjspwiti.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkcWVk d2Zib3d4ZXZ3anNwd2l0aSIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzg3NDEyNzQ4LCJleHAiOjIxMDI5ODg3NDh9.AEM12VTGE2Mvyw0D2PTwXMQJo3zF6mX7DdHmpXwCxK8";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkcWVkd2Zib3d4ZXZ3anNwd2l0aSIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzg3NDEyNzQ4LCJleHAiOjIxMDI5ODg3NDh9.AEM12VTGE2Mvyw0D2PTwXMQJo3zF6mX7DdHmpXwCxK8";
 
 // Format expected by admin-products.js
 const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
