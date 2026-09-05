@@ -1,16 +1,11 @@
 // Ms. Lil Baker — Supabase connection
-// Used by both the admin panel (admin-products.js) and the customer site (script.js)
-
 const SUPABASE_URL = "https://dqedwfbowxevwjspwiti.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkcWVkd2Zib3d4ZXZ3anNwd2l0aSIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzg3NDEyNzQ4LCJleHAiOjIxMDI5ODg3NDh9.AEM12VTGE2Mvyw0D2PTwXMQJo3zF6mX7DdHmpXwCxK8";
+// Use Supabase's current publishable key. This key is safe for browser/client use.
+const SUPABASE_ANON_KEY = "sb_publishable_uNiPvfMTR5jsKQ5rjGSX5w_jgweBPSP";
 
-// Format expected by admin-products.js
 const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
-
-// Format expected by script.js (the customer-facing homepage)
 window.MSB_CONFIG = { url: SUPABASE_URL, anonKey: SUPABASE_ANON_KEY };
 
-/* Customer-site mobile navigation. Admin pages do not have .navbar, so they are untouched. */
 if (document.querySelector('.navbar')) {
   const css = document.createElement('link');
   css.rel = 'stylesheet';
@@ -34,7 +29,6 @@ if (document.querySelector('.navbar')) {
     toggle.setAttribute('aria-expanded', 'false');
     toggle.setAttribute('aria-controls', 'mobileMenu');
     toggle.innerHTML = '<span></span><span></span>';
-
     nav.appendChild(toggle);
     document.body.appendChild(menu);
 
@@ -44,7 +38,6 @@ if (document.querySelector('.navbar')) {
       toggle.setAttribute('aria-label', 'Open navigation');
       document.body.classList.remove('mobile-menu-open');
     };
-
     toggle.addEventListener('click', () => {
       const open = !menu.classList.contains('open');
       menu.classList.toggle('open', open);
@@ -52,18 +45,11 @@ if (document.querySelector('.navbar')) {
       toggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
       document.body.classList.toggle('mobile-menu-open', open);
     });
-
-    menu.addEventListener('click', event => {
-      if (event.target.closest('a')) close();
-    });
-
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 820) close();
-    });
+    menu.addEventListener('click', event => { if (event.target.closest('a')) close(); });
+    window.addEventListener('resize', () => { if (window.innerWidth > 820) close(); });
   }
 }
 
-/* Customer-facing custom-cake links always use the number configured in Supabase. */
 if (document.querySelector('.navbar') && supabaseClient) {
   supabaseClient.from('site_settings').select('whatsapp_number').eq('id', 1).single().then(({ data }) => {
     const number = String(data?.whatsapp_number || '').replace(/\D/g, '');
